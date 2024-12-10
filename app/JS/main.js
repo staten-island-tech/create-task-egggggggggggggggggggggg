@@ -1,6 +1,7 @@
 import '../CSS/style.css';
 const apiKey = import.meta.env.VITE_HYPIXEL_API_KEY;
 const search_form =  document.querySelector(".search_form");
+const auctions_container =  document.querySelector(".auctions_container")
 search_form.addEventListener("submit", (event)=>
 {
     event.preventDefault()
@@ -67,24 +68,29 @@ function refresh_data()
     //When data is refreshed add it to a cache or smth
     load_data().then(data=>
     {
-
         data.auctions.forEach(auction=>
         {
-            console.log(auction.start)
+            displayItems(auction.item_name)
         }
         )
         const epochTime =  Date.now()
         console.log("current time", epochTime)
     })
-    .catch(error=>{console.error("ERROR REFRESHING DATA", data)})
-
+    .catch(error=>{console.error("ERROR REFRESHING DATA", error)})
 }
+
 //Rrefresh data funct
-refresh_data()
 //Create condition to check whether item already exists within list or not. 
 //Impelemnt use of proper caching to avoid strain
-function displayItems()
+function displayItems(itemName)
 {
+    const itemImage =  getItemImage(itemName);
+    auctions_container.insertAdjacentHTML("beforeend",`
+        <div class="auction_item">
+            <h1>${itemName}</h1>
+            <img src="${itemImage}" alt="${itemName}">
+        </div>
+        `)
     
 }
 //Get images
@@ -92,20 +98,32 @@ function displayItems()
 //This is for displaying the regular stuff 
 
 //Data updates every minute\
-const resourcehashmap = {};
+const resourcemap = {};
+
+async function load_website()
+{
+    await getItemData();
+    const auction_data =  await load_data();
+    auction_data.auctions.forEach(auction=>
+    {
+        displayItems(auction.item_name);
+    }
+    )
+}
+load_website()
 async function getItemData()
 {
     try{
         const resourcesResponse =  await getData('https://api.hypixel.net/resources/skyblock/items');
         resourcesResponse.items.forEach(item => {
-            if(!resourcehashmap[item.name])
+            if(!resourcemap[item.name])
             {
-                resourcehashmap[item.name] = [];
+                resourcemap[item.name] = [];
             }
-            resourcehashmap[item.name].push(item)
+            resourcemap[item.name].push(item)
         });
-        console.log(resourcehashmap)
-        //Hash map by name instead, more efficent considering how the auction displays data
+        console.log(resourcemap)
+        
     }
     catch(error)
     {
@@ -116,11 +134,11 @@ async function load_data()
 {
    return await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
 }
-getItemData()
 function getItemImage(image_name)
 {
-    Promise.all()
-    resourcehashmap[image_name];   
+    const item_material = resourcemap[image_name].material;
+    const item_image = item_material == "SKULL_ITEM" ? fetchHead(item_material.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
+    return item_image
 }
 async function manual_update()
 {
