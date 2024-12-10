@@ -93,24 +93,8 @@ function displayItems(itemName)
         `)
     
 }
-//Get images
-//Get the item price - Simple just use the data provided to us
-//This is for displaying the regular stuff 
 
-//Data updates every minute\
 const resourcemap = {};
-
-async function load_website()
-{
-    await getItemData();
-    const auction_data =  await load_data();
-    auction_data.auctions.forEach(auction=>
-    {
-        displayItems(auction.item_name);
-    }
-    )
-}
-load_website()
 async function getItemData()
 {
     try{
@@ -140,14 +124,26 @@ function getItemImage(image_name)
     const item_image = item_material == "SKULL_ITEM" ? fetchHead(item_material.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
     return item_image
 }
-async function manual_update()
+async function load_website()
 {
+    const stupid = await getItemData();
+    const auction_data =  await load_data();
+    Promise.all([stupid, auction_data]).then(data=>
+        {
+            console.log(data)
+            data[1].auctions.forEach(auction=>
+                {
+                   console.log(auction.item_name)
+
+                }
+            )
+        }
+        
+    ).catch(error=>
+        {
+            console.error(error)
+        }
+    )
 
 }
-
-//Pull auction data
-//Pull resource data 
-//cache the resource data to avoid making multiple requests
-//Make a cache for player_uuid ig 
-
-//Call method to display item
+load_website()
