@@ -82,6 +82,30 @@ function refresh_data()
 //Rrefresh data funct
 //Create condition to check whether item already exists within list or not. 
 //Impelemnt use of proper caching to avoid strain
+const resourcemap = {};
+async function getItemData()
+{
+    try{
+        const resourcesResponse =  await getData('https://api.hypixel.net/resources/skyblock/items');
+        resourcesResponse.items.forEach(item => {
+            if(!resourcemap[item.name])
+            {
+                resourcemap[item.name] = [];
+            }
+            resourcemap[item.name].push(item)
+        
+        });
+        console.log(resourcemap)
+    }
+    catch(error)
+    {
+        console.error(error,"ERROR");
+    }
+}
+async function load_data()
+{
+   return await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
+}
 function displayItems(itemName)
 {
     const itemImage =  getItemImage(itemName);
@@ -94,56 +118,23 @@ function displayItems(itemName)
     
 }
 
-const resourcemap = {};
-async function getItemData()
-{
-    try{
-        const resourcesResponse =  await getData('https://api.hypixel.net/resources/skyblock/items');
-        resourcesResponse.items.forEach(item => {
-            if(!resourcemap[item.name])
-            {
-                resourcemap[item.name] = [];
-            }
-            resourcemap[item.name].push(item)
-        });
-        console.log(resourcemap)
-        
-    }
-    catch(error)
-    {
-        console.error(error,"ERROR");
-    }
-}
-async function load_data()
-{
-   return await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
-}
 function getItemImage(image_name)
 {
-    const item_material = resourcemap[image_name].material;
-    const item_image = item_material == "SKULL_ITEM" ? fetchHead(item_material.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
-    return item_image
+    const item_data = resourcemap[image_name][0];
+    const item_material =  item_data.material;
+    console.log(item_data)
+    console.log(item_material)
+    const item_image = item_material == "SKULL_ITEM" ? fetchHead(item_data.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
+    return item_image;
 }
 async function load_website()
 {
-    const stupid = await getItemData();
+    await getItemData();
     const auction_data =  await load_data();
-    Promise.all([stupid, auction_data]).then(data=>
+    auction_data.auctions.forEach(auction=>
         {
-            console.log(data)
-            data[1].auctions.forEach(auction=>
-                {
-                   console.log(auction.item_name)
-
-                }
-            )
-        }
-        
-    ).catch(error=>
-        {
-            console.error(error)
+            displayItems(auction.item_name)
         }
     )
-
 }
 load_website()
