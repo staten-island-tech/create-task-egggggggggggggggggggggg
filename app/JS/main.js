@@ -88,11 +88,11 @@ async function getItemData()
     try{
         const resourcesResponse =  await getData('https://api.hypixel.net/resources/skyblock/items');
         resourcesResponse.items.forEach(item => {
-            if(!resourcemap[item.name])
+            if(!resourcemap[item.id])
             {
-                resourcemap[item.name] = [];
+                resourcemap[item.id] = [];
             }
-            resourcemap[item.name].push(item)
+            resourcemap[item.id].push(item)
         
         });
         console.log(resourcemap)
@@ -117,7 +117,14 @@ function displayItems(itemName)
         `)
     
 }
-
+function decodeGzipped(Gzipped)
+{
+    const notGzipped =  new Uint8Array(atob(Gzipped).split("").map(c=>c.charCodeAt(0)));
+    const binaryData =  pako.ungzip(notGzipped, {to: 'string'})
+    nbt.parse(binaryData).then((parsed) => {
+        console.log(parsed);
+    });
+}
 function getItemImage(image_name)
 {
     const item_data = resourcemap[image_name][0];
@@ -133,7 +140,9 @@ async function load_website()
     const auction_data =  await load_data();
     auction_data.auctions.forEach(auction=>
         {
-            displayItems(auction.item_name)
+           const item_data = auction.item_bytes;
+           decodeGzipped(item_data);
+
         }
     )
 }
