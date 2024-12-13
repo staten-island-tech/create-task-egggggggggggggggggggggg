@@ -1,4 +1,8 @@
 import '../CSS/style.css';
+import * as nbt from 'prismarine-nbt';
+import {Buffer} from 'buffer';
+import pako from 'pako';
+import { decode } from 'punycode';
 const apiKey = import.meta.env.VITE_HYPIXEL_API_KEY;
 const search_form =  document.querySelector(".search_form");
 const auctions_container =  document.querySelector(".auctions_container")
@@ -45,9 +49,6 @@ async function getPlayerUUID(player_name)
         console.error("Problem fetching player UUID", error);
     }
 }
-
-//Function for getting item image.
-//Check item within id hash map and cross reference that 
 async function getData(url,error_message)
 {
     try{
@@ -65,7 +66,6 @@ let bazaarData;
 
 function refresh_data()
 {
-    //When data is refreshed add it to a cache or smth
     load_data().then(data=>
     {
         data.auctions.forEach(auction=>
@@ -78,10 +78,6 @@ function refresh_data()
     })
     .catch(error=>{console.error("ERROR REFRESHING DATA", error)})
 }
-
-//Rrefresh data funct
-//Create condition to check whether item already exists within list or not. 
-//Impelemnt use of proper caching to avoid strain
 const resourcemap = {};
 async function getItemData()
 {
@@ -95,7 +91,6 @@ async function getItemData()
             resourcemap[item.id].push(item)
         
         });
-        console.log(resourcemap)
     }
     catch(error)
     {
@@ -106,24 +101,42 @@ async function load_data()
 {
    return await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
 }
-function displayItems(itemName)
+function displayItems(itemID, auctionData, itemData)
 {
-    const itemImage =  getItemImage(itemName);
+    let testVar
+    const itemImage =  getItemImage(itemID, auctionData);
+    console.log(auctionData);
+
     auctions_container.insertAdjacentHTML("beforeend",`
         <div class="auction_item">
-            <h1>${itemName}</h1>
-            <img src="${itemImage}" alt="${itemName}">
+            <h1 class="item_header">${auctionData.item_name}</h1>
+            <img src="${itemImage}" class="item_image"alt="${auctionData.item_name}">
         </div>
         `)
     
 }
-function decodeGzipped(Gzipped)
+async function decodeGzipped(Gzipped)
 {
-    const notGzipped =  new Uint8Array(atob(Gzipped).split("").map(c=>c.charCodeAt(0)));
-    const binaryData =  pako.ungzip(notGzipped, {to: 'string'})
-    nbt.parse(binaryData).then((parsed) => {
-        console.log(parsed);
-    });
+    try{
+        const data =  Buffer.from(Gzipped, 'base64');
+        const decompressed =  pako.ungzip(data);
+        const buffer =  Buffer.from(decompressed);
+        return new Promise((resolve, reject)=>
+        {
+            nbt.parse(buffer,(error, result)=>
+            {
+                if(error)
+                {
+                    reject(error);
+                } else{
+                    resolve(result);
+                }
+            })
+        })
+    }
+    catch(error){
+        return error;
+    }
 }
 function getItemImage(image_name)
 {
@@ -140,10 +153,20 @@ async function load_website()
     const auction_data =  await load_data();
     auction_data.auctions.forEach(auction=>
         {
-           const item_data = auction.item_bytes;
-           decodeGzipped(item_data);
-
+            processAuctionData(auction);
         }
     )
+}
+function processAuctionData(auctionData)
+{   
+    const itemData =  auctionData.item_bytes;
+    const decodedItemData = decodeGzipped(itemData);
+    decodedItemData.then(data=>
+    {
+        const actuallyImportant  =  data.value.i.value.value[0].tag.value;
+        const id =  actuallyImportant.ExtraAttributes.value.id.value;
+        displayItems(id, auctionData, actuallyImportant);
+    }
+    )  
 }
 load_website()
