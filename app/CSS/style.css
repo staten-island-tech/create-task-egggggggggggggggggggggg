@@ -6,35 +6,37 @@ body,
     font-size: 10px;
     box-sizing: border-box;
 }
-body
-{
-     background-color: white;
+
+body {
+    background-color: white;
 }
-.item_image
-{
-    width:7.5rem;
-    height:7.5rem;
+
+.item_image {
+    width: 7.5rem;
+    height: 7.5rem;
 }
-.auction_item
-{
-    background-color: black;
-    width:20rem;
-    height:20rem;
+
+.auction_item {
+    background-color: grey;
+    width: 20rem;
+    height: 20rem;
     align-items: center;
     justify-content: center;
     display: center;
 }
-.item_header
-{
+
+.item_header {
     font-size: 1rem;
-    color:white;
+    color: white;
 }
-.auctions_container
-{
-    width:100%;
-    display:grid;
+
+.auctions_container {
+    width: 100%;
+    display: grid;
     justify-content: center;
     align-items: center;
-    grid-template-columns: repeat(15, 1fr);
-    gap:1rem;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin: 1rem;
+    padding: 1rem;
 }

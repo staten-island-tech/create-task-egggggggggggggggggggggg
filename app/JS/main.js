@@ -42,12 +42,29 @@ async function getPlayerUUID(player_name)
     {
         const uuidResponse =  await getData(`https://api.ashcon.app/mojang/v2/user/${player_name}`);
         return uuidResponse.uuid.replace(/-/g,"")
-
     }
     catch(error)
     {
         console.error("Problem fetching player UUID", error);
     }
+}
+async function get_minecraft_player_data(player_uuid)
+{
+    try{
+        const cleanedPlayerUuid =  player_uuid.replace(/-/g,"")
+        console.log(cleanedPlayerUuid)
+        const playerNameResponse =  await getData(`https://sessionserver.mojang.com/session/minecraft/profile/${cleanedPlayerUuid}`);
+        return playerNameResponse; 
+    }
+    catch(error)
+    {
+        console.error("problem fetching player data", error);
+    }
+}
+function EpochToDate(epoch)
+{
+    const date =  new Date(epoch);
+    return date.toString();
 }
 async function getData(url,error_message)
 {
@@ -61,22 +78,6 @@ async function getData(url,error_message)
         console.error(error_message, error);
         throw error;
     }
-}
-let bazaarData;
-
-function refresh_data()
-{
-    load_data().then(data=>
-    {
-        data.auctions.forEach(auction=>
-        {
-            displayItems(auction.item_name)
-        }
-        )
-        const epochTime =  Date.now()
-        console.log("current time", epochTime)
-    })
-    .catch(error=>{console.error("ERROR REFRESHING DATA", error)})
 }
 const resourcemap = {};
 async function getItemData()
@@ -101,16 +102,22 @@ async function load_data()
 {
    return await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
 }
-function displayItems(itemID, auctionData, itemData)
+async function displayItems(itemID, auctionData, itemData)
 {
-    let testVar
+    let testVar =  itemData;
     const itemImage =  getItemImage(itemID, auctionData);
+    const auctioneerName =  await get_minecraft_player_data(auctionData.auctioneer);
+    
     console.log(auctionData);
 
     auctions_container.insertAdjacentHTML("beforeend",`
         <div class="auction_item">
-            <h1 class="item_header">${auctionData.item_name}</h1>
+            <h2 class="item_header">${auctionData.item_name}</h2>
             <img src="${itemImage}" class="item_image"alt="${auctionData.item_name}">
+            <h2>Auctioneer : ${auctioneerName.name}</h2>
+            <h2>Starting Bid : ${auctionData.starting_bid}</h2>
+            <h2>Start : ${EpochToDate(auctionData.start)} End : ${EpochToDate(auctionData.end)}</h2>
+            <h2></h2>
         </div>
         `)
     
@@ -162,11 +169,11 @@ function processAuctionData(auctionData)
     const itemData =  auctionData.item_bytes;
     const decodedItemData = decodeGzipped(itemData);
     decodedItemData.then(data=>
-    {
-        const actuallyImportant  =  data.value.i.value.value[0].tag.value;
-        const id =  actuallyImportant.ExtraAttributes.value.id.value;
-        displayItems(id, auctionData, actuallyImportant);
-    }
+        {
+            const actuallyImportant  =  data.value.i.value.value[0].tag.value;
+            const id =  actuallyImportant.ExtraAttributes.value.id.value;
+            displayItems(id, auctionData, actuallyImportant);
+        }
     )  
 }
 load_website()
