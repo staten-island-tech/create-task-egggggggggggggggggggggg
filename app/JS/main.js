@@ -20,7 +20,6 @@ async function retrievePlayerAuctions(player_name)
 {
     const playerUUID =  await getPlayerUUID(player_name);
     const auction_data =  await getData(`https://api.hypixel.net/v2/skyblock/auction?key=${apiKey}&player=${playerUUID}`)
-    console.log(auction_data)
 }
 
 function abbreviateItem(number) {
@@ -52,7 +51,6 @@ async function get_minecraft_player_data(player_uuid)
 {
     try{
         const cleanedPlayerUuid =  player_uuid.replace(/-/g,"")
-        console.log(cleanedPlayerUuid)
         const playerNameResponse =  await getData(`https://sessionserver.mojang.com/session/minecraft/profile/${cleanedPlayerUuid}`);
         return playerNameResponse; 
     }
@@ -83,7 +81,7 @@ const resourcemap = {};
 async function getItemData()
 {
     try{
-        const resourcesResponse =  await getData('https://api.hypixel.net/resources/skyblock/items');
+        const resourcesResponse =  await getData('https://api.hypixel.net/v2/resources/skyblock/items');
         resourcesResponse.items.forEach(item => {
             if(!resourcemap[item.id])
             {
@@ -92,6 +90,7 @@ async function getItemData()
             resourcemap[item.id].push(item)
         
         });
+        console.log(resourcemap)
     }
     catch(error)
     {
@@ -104,17 +103,17 @@ async function load_data()
 }
 async function displayItems(itemID, auctionData, itemData)
 {
-    let testVar =  itemData;
-    const itemImage =  getItemImage(itemID, auctionData);
-    const auctioneerName =  await get_minecraft_player_data(auctionData.auctioneer);
-    
-    console.log(auctionData);
-
+    let itemImage =  getItemImage(itemID, auctionData);    
+    if(!itemImage)
+    {
+        console.log(itemData, auctionData)
+        itemImage = "SPEICAL_ITEM.png"
+    }
     auctions_container.insertAdjacentHTML("beforeend",`
         <div class="auction_item">
             <h2 class="item_header">${auctionData.item_name}</h2>
             <img src="${itemImage}" class="item_image"alt="${auctionData.item_name}">
-            <h2>Auctioneer : ${auctioneerName.name}</h2>
+            <h2>Auctioneer : }</h2>
             <h2>Starting Bid : ${auctionData.starting_bid}</h2>
             <h2>Start : ${EpochToDate(auctionData.start)} End : ${EpochToDate(auctionData.end)}</h2>
             <h2></h2>
@@ -147,11 +146,18 @@ async function decodeGzipped(Gzipped)
 }
 function getItemImage(image_name)
 {
+    if(!resourcemap[image_name])
+    {
+        console.log(image_name, "ISSUE SPOTTED")
+        return false;
+    }
     const item_data = resourcemap[image_name][0];
     const item_material =  item_data.material;
-    console.log(item_data)
-    console.log(item_material)
-    const item_image = item_material == "SKULL_ITEM" ? fetchHead(item_data.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
+    let item_image = item_material == "SKULL_ITEM" ? fetchHead(item_data.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
+    if(!item_image)
+    {
+        item_image = item_material.split(":")[0];
+    }
     return item_image;
 }
 async function load_website()
@@ -163,6 +169,7 @@ async function load_website()
             processAuctionData(auction);
         }
     )
+
 }
 function processAuctionData(auctionData)
 {   
