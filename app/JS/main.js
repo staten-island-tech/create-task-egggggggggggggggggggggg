@@ -106,8 +106,9 @@ async function displayItems(itemID, auctionData, itemData)
     let itemImage =  getItemImage(itemID, auctionData);    
     if(!itemImage)
     {
-        console.log(itemData, auctionData)
-        itemImage = "SPEICAL_ITEM.png"
+        console.log(itemData, auctionData,"YAY")
+        itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
+        //Backup thingie 
     }
     auctions_container.insertAdjacentHTML("beforeend",`
         <div class="auction_item">
