@@ -52,7 +52,9 @@ async function get_minecraft_player_data(player_uuid)
     try{
         const cleanedPlayerUuid =  player_uuid.replace(/-/g,"")
         const playerNameResponse =  await getData(`https://sessionserver.mojang.com/session/minecraft/profile/${cleanedPlayerUuid}`);
-        return playerNameResponse; 
+        const dehashed =  JSON.parse(atob(playerNameResponse));
+        console.log(dehashed)
+        return dehashed; 
     }
     catch(error)
     {
@@ -149,12 +151,12 @@ function getItemImage(image_name)
 {
     if(!resourcemap[image_name])
     {
-        console.log(image_name, "ISSUE SPOTTED")
         return false;
     }
     const item_data = resourcemap[image_name][0];
     const item_material =  item_data.material;
     let item_image = item_material == "SKULL_ITEM" ? fetchHead(item_data.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
+    console.log(item_image)
     if(!item_image)
     {
         item_image = item_material.split(":")[0];
@@ -185,3 +187,7 @@ function processAuctionData(auctionData)
     )  
 }
 load_website()
+async function test_fetching_player_skin()
+{
+
+}
