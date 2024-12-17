@@ -23,6 +23,7 @@ body {
     align-items: center;
     justify-content: center;
     display: center;
+    border-radius: 2rem;
 }
 
 .item_header {
@@ -35,7 +36,7 @@ body {
     display: grid;
     justify-content: center;
     align-items: center;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(10, 20rem);
     gap: 1rem;
     margin: 1rem;
     padding: 1rem;

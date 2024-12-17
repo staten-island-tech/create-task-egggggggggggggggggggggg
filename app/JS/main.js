@@ -92,7 +92,6 @@ async function getItemData()
             resourcemap[item.id].push(item)
         
         });
-        console.log(resourcemap)
     }
     catch(error)
     {
@@ -108,9 +107,13 @@ async function displayItems(itemID, auctionData, itemData)
     let itemImage =  getItemImage(itemID, auctionData);    
     if(!itemImage)
     {
-        console.log(itemData, auctionData,"YAY")
         itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
+
         //Backup thingie 
+    }//Issues  =  ZOMBIE AND SKELETON SKULLS, 
+    if(itemData.ench)
+    {
+        //Apply enchantment glint here    
     }
     auctions_container.insertAdjacentHTML("beforeend",`
         <div class="auction_item">
@@ -149,19 +152,24 @@ async function decodeGzipped(Gzipped)
 }
 function getItemImage(image_name)
 {
-    if(!resourcemap[image_name])
-    {
-        return false;
+    try{
+        if(!resourcemap[image_name])
+        {
+            return false;
+        }
+        const item_data = resourcemap[image_name][0];
+        const item_material =  item_data.material;
+        let item_image = item_material == "SKULL_ITEM" ? fetchHead(item_data.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
+        if(!item_image)
+        {
+            item_image = item_material.split(":")[0];
+        }
+        return item_image;
     }
-    const item_data = resourcemap[image_name][0];
-    const item_material =  item_data.material;
-    let item_image = item_material == "SKULL_ITEM" ? fetchHead(item_data.skin.value) : `valid_images/minecraft_${item_material.toLowerCase()}.png`;
-    console.log(item_image)
-    if(!item_image)
+    catch(error)
     {
-        item_image = item_material.split(":")[0];
+        console.error(error, image_name, "Issue detected");
     }
-    return item_image;
 }
 async function load_website()
 {
@@ -182,12 +190,9 @@ function processAuctionData(auctionData)
         {
             const actuallyImportant  =  data.value.i.value.value[0].tag.value;
             const id =  actuallyImportant.ExtraAttributes.value.id.value;
+            console.log(actuallyImportant)
             displayItems(id, auctionData, actuallyImportant);
         }
     )  
 }
 load_website()
-async function test_fetching_player_skin()
-{
-
-}
