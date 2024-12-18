@@ -6,6 +6,10 @@ import { decode } from 'punycode';
 const apiKey = import.meta.env.VITE_HYPIXEL_API_KEY;
 const search_form =  document.querySelector(".search_form");
 const auctions_container =  document.querySelector(".auctions_container")
+const item_info_dispay = document.querySelector(".item_info_display")
+
+
+
 search_form.addEventListener("submit", (event)=>
 {
     event.preventDefault()
@@ -19,7 +23,8 @@ search_form.addEventListener("submit", (event)=>
 async function retrievePlayerAuctions(player_name)
 {
     const playerUUID =  await getPlayerUUID(player_name);
-    const auction_data =  await getData(`https://api.hypixel.net/v2/skyblock/auction?key=${apiKey}&player=${playerUUID}`)
+    const player_auction_data =  await getData(`https://api.hypixel.net/v2/skyblock/auction?key=${apiKey}&player=${playerUUID}`)
+    return player_auction_data
 }
 
 function abbreviateItem(number) {
@@ -98,9 +103,11 @@ async function getItemData()
         console.error(error,"ERROR");
     }
 }
+let auctionData
 async function load_data()
 {
-   return await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
+    auctionData = await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
+    return auctionData;
 }
 async function displayItems(itemID, auctionData, itemData)
 {
@@ -196,3 +203,33 @@ function processAuctionData(auctionData)
     )  
 }
 load_website()
+auctions_container.addEventListener("click",(event)=>
+{
+    const clicked =  event.target.closest(".auction_item");
+    if(clicked==null)
+    {
+        console.log("Auction item has not been clicked")
+    }
+    else
+    {
+        console.log(clicked)
+    }
+})
+function loadAuctionItemDat()
+{
+    console.log(item_info_dispay);
+    c
+}
+
+
+//Implement a page function to reduce screen thingie
+
+//Create an array for auctionData
+//get the items name. check it with the auctionData dictionary 
+//Check for item.bytes to get the info on the item
+//get auctioneer and pass it through a function to get that player's skin.
+//Add a live timer ig
+
+
+//Work on finishing searchbar
+//Take searchbar info and pass t

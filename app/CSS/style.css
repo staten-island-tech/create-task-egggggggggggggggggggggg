@@ -20,9 +20,6 @@ body {
     background-color: grey;
     width: 20rem;
     height: 20rem;
-    align-items: center;
-    justify-content: center;
-    display: center;
     border-radius: 2rem;
 }
 
@@ -32,12 +29,25 @@ body {
 }
 
 .auctions_container {
-    width: 100%;
+    width: 50%;
     display: grid;
-    justify-content: center;
-    align-items: center;
-    grid-template-columns: repeat(10, 20rem);
+    grid-template-columns: repeat(6, 20rem);
     gap: 1rem;
     margin: 1rem;
     padding: 1rem;
+}
+
+.item_info_display {
+    background-color: gray;
+    width: 50%;
+    height: 100vh;
+    justify-content: right;
+    display: flex;
+}
+
+.auction_display {
+    justify-content: space-between;
+    display: flex;
+    width: 100%;
+
 }
