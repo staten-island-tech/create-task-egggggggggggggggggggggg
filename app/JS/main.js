@@ -103,15 +103,27 @@ async function getItemData()
         console.error(error,"ERROR");
     }
 }
-let auctionData
+let auctionData;
+const auctionByUUID={};
 async function load_data()
 {
     auctionData = await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
+    if(!auctionData)
+    {
+        return error;
+    }
+        auctionData.auctions.forEach(auction=>
+            {
+                auctionByUUID[auction.uuid]=[];
+                auctionByUUID[auction.uuid].push(auction);
+            }
+        ) 
     return auctionData;
 }
 async function displayItems(itemID, auctionData, itemData)
 {
     let itemImage =  getItemImage(itemID, auctionData);    
+    console.log(auctionData)
     if(!itemImage)
     {
         itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
@@ -123,7 +135,7 @@ async function displayItems(itemID, auctionData, itemData)
         //Apply enchantment glint here    
     }
     auctions_container.insertAdjacentHTML("beforeend",`
-        <div class="auction_item">
+        <div class="auction_item" data-uuid="${auctionData.uuid}">
             <h2 class="item_header">${auctionData.item_name}</h2>
             <img src="${itemImage}" class="item_image"alt="${auctionData.item_name}">
             <h2>Auctioneer : }</h2>
@@ -197,28 +209,29 @@ function processAuctionData(auctionData)
         {
             const actuallyImportant  =  data.value.i.value.value[0].tag.value;
             const id =  actuallyImportant.ExtraAttributes.value.id.value;
-            console.log(actuallyImportant)
             displayItems(id, auctionData, actuallyImportant);
-        }
-    )  
+}   
+)  
 }
 load_website()
 auctions_container.addEventListener("click",(event)=>
 {
     const clicked =  event.target.closest(".auction_item");
-    if(clicked==null)
+    if(clicked!=null)
     {
-        console.log("Auction item has not been clicked")
-    }
-    else
-    {
-        console.log(clicked)
+        const auction_uuid = clicked.dataset.uuid
+        loadAuctionItemData(auctionByUUID[auction_uuid][0].item_bytes)
+        //Item info display thingie
     }
 })
-function loadAuctionItemDat()
+
+
+
+async function loadAuctionItemData(itemInfo)
 {
-    console.log(item_info_dispay);
-    c
+    const decodedData =  await decodeGzipped(itemInfo)
+    console.log(decodedData.value.i.value.value[0].tag.value.display)
+    item_info_dispay.textContent =  decodedData.value.i.value.value[0].tag.value.display;
 }
 
 
@@ -233,3 +246,4 @@ function loadAuctionItemDat()
 
 //Work on finishing searchbar
 //Take searchbar info and pass t
+//Utilize auction uuid 

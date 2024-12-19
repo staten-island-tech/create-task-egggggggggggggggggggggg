@@ -39,10 +39,11 @@ body {
 
 .item_info_display {
     background-color: gray;
-    width: 50%;
+    width: 25%;
     height: 100vh;
     justify-content: right;
     display: flex;
+    position: fixed;
 }
 
 .auction_display {
