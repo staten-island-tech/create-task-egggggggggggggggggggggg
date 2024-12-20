@@ -230,8 +230,9 @@ auctions_container.addEventListener("click",(event)=>
 async function loadAuctionItemData(itemInfo)
 {
     const decodedData =  await decodeGzipped(itemInfo)
-    console.log(decodedData.value.i.value.value[0].tag.value.display)
-    item_info_dispay.textContent =  decodedData.value.i.value.value[0].tag.value.display;
+    console.log(decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value)
+    item_info_dispay.textContent =  decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value;
+    
 }
 
 

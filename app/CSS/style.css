@@ -52,3 +52,12 @@ body {
     width: 100%;
 
 }
+
+@font-face {
+    font-family: "regular_minecraft";
+    src: url('/minecraft_font/MinecraftRegular-Bmg3.otf') format('opentype');
+}
+
+body {
+    font-family: 'regular_minecraft', sans-serif;
+}
