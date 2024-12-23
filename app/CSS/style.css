@@ -39,11 +39,13 @@ body {
 
 .item_info_display {
     background-color: gray;
-    width: 25%;
+    width: 50%;
     height: 100vh;
     justify-content: right;
     display: flex;
     position: fixed;
+    font-size: 2rem;
+    white-space: pre;
 }
 
 .auction_display {
@@ -60,4 +62,8 @@ body {
 
 body {
     font-family: 'regular_minecraft', sans-serif;
+}
+@font-face {
+    font-family: "standard-galatic";
+    src: url('/minecraft_font/minecraft-standard-galactic-alphabet.otf') format('opentype');
 }

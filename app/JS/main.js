@@ -8,6 +8,49 @@ const search_form =  document.querySelector(".search_form");
 const auctions_container =  document.querySelector(".auctions_container")
 const item_info_dispay = document.querySelector(".item_info_display")
 
+const minecraftFormattingCodes = {
+    colorCodes: {
+        "§0": "color:#000000", // Black
+        "§1": "color:#0000AA", // Dark Blue
+        "§2": "color:#00AA00", // Dark Green
+        "§3": "color:#00AAAA", // Dark Aqua
+        "§4": "color:#AA0000", // Dark Red
+        "§5": "color:#AA00AA", // Dark Purple
+        "§6": "color:#FFAA00", // Gold
+        "§7": "color:#AAAAAA", // Gray
+        "§8": "color:#555555", // Dark Gray
+        "§9": "color:#5555FF", // Blue
+        "§a": "color:#55FF55", // Green
+        "§b": "color:#55FFFF", // Aqua
+        "§c": "color:#FF5555", // Red
+        "§d": "color:#FF55FF", // Light Purple
+        "§e": "color:#FFFF55", // Yellow
+        "§f": "color:#FFFFFF", // White
+        "§g": "color:#DDD605", // Minecoin Gold (BE only)
+        "§h": "color:#E3D4D1", // Material Quartz (BE only)
+        "§i": "color:#CECACA", // Material Iron (BE only)
+        "§j": "color:#443A3B", // Material Netherite (BE only)
+        "§m": "color:#971607", // Material Redstone (BE only)
+        "§n": "color:#B4684D", // Material Copper (BE only)
+        "§p": "color:#DEB12D", // Material Gold (BE only)
+        "§q": "color:#47A036", // Material Emerald (BE only)
+        "§s": "color:#2CBAA8", // Material Diamond (BE only)
+        "§t": "color:#21497B", // Material Lapis (BE only)
+        "§u": "color:#9A5CC6"  // Material Amethyst (BE only)
+    },
+    formattingCodes: {
+        "§k": "Obfuscated",
+        "§l": "Bold",
+        "§m": "Strikethrough",
+        "§n": "Underline",
+        "§o": "Italic",
+        "§r": "Reset"
+    }
+};
+
+
+console.log(minecraftFormattingCodes);
+
 
 
 search_form.addEventListener("submit", (event)=>
@@ -224,18 +267,66 @@ auctions_container.addEventListener("click",(event)=>
         //Item info display thingie
     }
 })
-
+function change_text(text)
+{
+    const regex = /(§[0-9a-fk-or])+/g;
+    let matches = [];
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      matches.push(match[0]);
+    }
+    const properties= my_splice(text, matches,"§");
+    console.log(properties)
+    for(const[key,value] of Object.entries(properties))
+    {       
+        console.log(key,value)
+    }
+}
+function my_splice(text, array, end_code)
+{
+    const properties = {}
+    const values={}
+    array.forEach(detect=>
+    {
+        values[detect]=text.lastIndexOf(detect);
+    }
+    )
+    if(Object.keys(values).length<=1)
+    {
+    }
+    for(const[key,value] of Object.entries(values))
+    {
+        const StartIndex = value+key.length;
+        const endIndex =  text.indexOf(end_code, StartIndex);
+        if(endIndex!=(-1))
+        {
+            const spliced_string = text.substring(StartIndex, endIndex);
+            properties[key]=spliced_string;
+            continue
+        }
+        properties[key]=text.substring(StartIndex, text[text.length]);
+    }
+    return properties;
+}
 
 
 async function loadAuctionItemData(itemInfo)
 {
     const decodedData =  await decodeGzipped(itemInfo)
     console.log(decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value)
-    item_info_dispay.textContent =  decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value;
-    
+    const lore =  decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value;
+    item_info_dispay.textContent="";
+    lore.forEach(line=>
+    {
+        change_text(line);
+        item_info_dispay.textContent+=line
+        item_info_dispay.textContent+="\n"
+
+
+    }
+    )    
+
 }
-
-
 //Implement a page function to reduce screen thingie
 
 //Create an array for auctionData
@@ -243,7 +334,6 @@ async function loadAuctionItemData(itemInfo)
 //Check for item.bytes to get the info on the item
 //get auctioneer and pass it through a function to get that player's skin.
 //Add a live timer ig
-
 
 //Work on finishing searchbar
 //Take searchbar info and pass t
