@@ -10,42 +10,43 @@ const item_info_dispay = document.querySelector(".item_info_display")
 
 const minecraftFormattingCodes = {
     colorCodes: {
-        "§0": "color:#000000", // Black
-        "§1": "color:#0000AA", // Dark Blue
-        "§2": "color:#00AA00", // Dark Green
-        "§3": "color:#00AAAA", // Dark Aqua
-        "§4": "color:#AA0000", // Dark Red
-        "§5": "color:#AA00AA", // Dark Purple
-        "§6": "color:#FFAA00", // Gold
-        "§7": "color:#AAAAAA", // Gray
-        "§8": "color:#555555", // Dark Gray
-        "§9": "color:#5555FF", // Blue
-        "§a": "color:#55FF55", // Green
-        "§b": "color:#55FFFF", // Aqua
-        "§c": "color:#FF5555", // Red
-        "§d": "color:#FF55FF", // Light Purple
-        "§e": "color:#FFFF55", // Yellow
-        "§f": "color:#FFFFFF", // White
-        "§g": "color:#DDD605", // Minecoin Gold (BE only)
-        "§h": "color:#E3D4D1", // Material Quartz (BE only)
-        "§i": "color:#CECACA", // Material Iron (BE only)
-        "§j": "color:#443A3B", // Material Netherite (BE only)
-        "§m": "color:#971607", // Material Redstone (BE only)
-        "§n": "color:#B4684D", // Material Copper (BE only)
-        "§p": "color:#DEB12D", // Material Gold (BE only)
-        "§q": "color:#47A036", // Material Emerald (BE only)
-        "§s": "color:#2CBAA8", // Material Diamond (BE only)
-        "§t": "color:#21497B", // Material Lapis (BE only)
-        "§u": "color:#9A5CC6"  // Material Amethyst (BE only)
+        "§0":"color:#000000;", // Black
+        "§1":"color:#0000AA;", // Dark Blue
+        "§2":"color:#00AA00;", // Dark Green
+        "§3":"color:#00AAAA;", // Dark Aqua
+        "§4":"color:#AA0000;", // Dark Red
+        "§5":"color:#AA00AA;", // Dark Purple
+        "§6":"color:#FFAA00;", // Gold
+        "§7":"color:#AAAAAA;", // Gray
+        "§8":"color:#555555;", // Dark Gray
+        "§9":"color:#5555FF;", // Blue
+        "§a":"color:#55FF55;", // Green
+        "§b":"color:#55FFFF;", // Aqua
+        "§c":"color:#FF5555;", // Red
+        "§d":"color:#FF55FF;", // Light Purple
+        "§e":"color:#FFFF55;", // Yellow
+        "§f":"color:#FFFFFF;", // White
+        "§g":"color:#DDD605;", // Minecoin Gold (BE only)
+        "§h":"color:#E3D4D1;", // Material Quartz (BE only)
+        "§i":"color:#CECACA;", // Material Iron (BE only)
+        "§j":"color:#443A3B;", // Material Netherite (BE only)
+        "§m":"color:#971607;", // Material Redstone (BE only)
+        "§n":"color:#B4684D;", // Material Copper (BE only)
+        "§p":"color:#DEB12D;", // Material Gold (BE only)
+        "§q":"color:#47A036;", // Material Emerald (BE only)
+        "§s":"color:#2CBAA8;", // Material Diamond (BE only)
+        "§t":"color:#21497B;", // Material Lapis (BE only)
+        "§u":"color:#9A5CC6;"  // Material Amethyst (BE only)
     },
-    formattingCodes: {
-        "§k": "Obfuscated",
-        "§l": "Bold",
-        "§m": "Strikethrough",
-        "§n": "Underline",
-        "§o": "Italic",
-        "§r": "Reset"
+    formattingCodes : {
+        "§k": "font-family: 'Courier New', Courier, monospace; animation: obfuscate 1s infinite;", // Obfuscated
+        "§l": "font-weight: bold;", // Bold
+        "§m": "text-decoration: line-through;", // Strikethrough
+        "§n": "text-decoration: underline;", // Underline
+        "§o": "font-style: italic;", // Italic
+        "§r": "all: unset; font: inherit;" // Reset
     }
+      
 };
 
 
@@ -276,11 +277,31 @@ function change_text(text)
       matches.push(match[0]);
     }
     const properties= my_splice(text, matches,"§");
-    console.log(properties)
+    let string_begin = "<span style="
+
     for(const[key,value] of Object.entries(properties))
     {       
-        console.log(key,value)
+        if(!key || !value)
+        {
+            console.log("ISSUE NOTED")
+            return
+        }
+        for(let i =0; i < key.length; i+=2)
+        {
+            const spliced_property =  key.slice(i, i+2);
+            console.log(spliced_property)
+            if(Object.keys(minecraftFormattingCodes.colorCodes).includes(spliced_property))
+            {
+                string_begin+=minecraftFormattingCodes.colorCodes[spliced_property];
+            }
+            else if(Object.keys(minecraftFormattingCodes.formattingCodes).includes(spliced_property))
+            {
+                string_begin+=minecraftFormattingCodes.formattingCodes[spliced_property]
+            }
+        }
+        string_begin+= `>${value}</span>`
     }
+    return string_begin
 }
 function my_splice(text, array, end_code)
 {
@@ -289,6 +310,7 @@ function my_splice(text, array, end_code)
     array.forEach(detect=>
     {
         values[detect]=text.lastIndexOf(detect);
+        console.log(text.lastIndexOf(detect))
     }
     )
     if(Object.keys(values).length<=1)
@@ -306,9 +328,13 @@ function my_splice(text, array, end_code)
         }
         properties[key]=text.substring(StartIndex, text[text.length]);
     }
+    console.log(properties)
     return properties;
 }
-
+function apply_armor_glint(item)
+{
+    
+}
 
 async function loadAuctionItemData(itemInfo)
 {
@@ -318,11 +344,7 @@ async function loadAuctionItemData(itemInfo)
     item_info_dispay.textContent="";
     lore.forEach(line=>
     {
-        change_text(line);
-        item_info_dispay.textContent+=line
-        item_info_dispay.textContent+="\n"
-
-
+        item_info_dispay.insertAdjacentHTML("beforeend",`${change_text(line)}`)
     }
     )    
 

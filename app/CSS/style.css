@@ -67,3 +67,15 @@ body {
     font-family: "standard-galatic";
     src: url('/minecraft_font/minecraft-standard-galactic-alphabet.otf') format('opentype');
 }
+@font-face {
+    font-family: "bold_minecraft";
+    src: url('/minecraft_font/MinecraftBold-nMK1.otf');
+}
+@font-face {
+    font-family: "bold_italic_minecraft";
+    src: url('/minecraft_font/MinecraftBoldItalic-1y1e.otf');
+}
+@font-face {
+    font-family: "italic_minecraft";
+    src: url('/minecraft_font/MinecraftItalic-R8Mo.otf');
+}
