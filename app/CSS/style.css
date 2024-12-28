@@ -42,17 +42,16 @@ body {
     width: 50%;
     height: 100vh;
     justify-content: right;
-    display: flex;
-    position: fixed;
+    display: block;
     font-size: 2rem;
-    white-space: pre;
 }
 
 .auction_display {
     justify-content: space-between;
     display: flex;
     width: 100%;
-
+    text-align: center;
+    
 }
 
 @font-face {

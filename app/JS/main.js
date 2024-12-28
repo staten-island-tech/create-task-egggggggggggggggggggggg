@@ -3,57 +3,47 @@ import * as nbt from 'prismarine-nbt';
 import {Buffer} from 'buffer';
 import pako from 'pako';
 import { decode } from 'punycode';
+
 const apiKey = import.meta.env.VITE_HYPIXEL_API_KEY;
 const search_form =  document.querySelector(".search_form");
 const auctions_container =  document.querySelector(".auctions_container")
 const item_info_dispay = document.querySelector(".item_info_display")
-
 const minecraftFormattingCodes = {
-    colorCodes: {
-        "§0":"color:#000000;", // Black
-        "§1":"color:#0000AA;", // Dark Blue
-        "§2":"color:#00AA00;", // Dark Green
-        "§3":"color:#00AAAA;", // Dark Aqua
-        "§4":"color:#AA0000;", // Dark Red
-        "§5":"color:#AA00AA;", // Dark Purple
-        "§6":"color:#FFAA00;", // Gold
-        "§7":"color:#AAAAAA;", // Gray
-        "§8":"color:#555555;", // Dark Gray
-        "§9":"color:#5555FF;", // Blue
-        "§a":"color:#55FF55;", // Green
-        "§b":"color:#55FFFF;", // Aqua
-        "§c":"color:#FF5555;", // Red
-        "§d":"color:#FF55FF;", // Light Purple
-        "§e":"color:#FFFF55;", // Yellow
-        "§f":"color:#FFFFFF;", // White
-        "§g":"color:#DDD605;", // Minecoin Gold (BE only)
-        "§h":"color:#E3D4D1;", // Material Quartz (BE only)
-        "§i":"color:#CECACA;", // Material Iron (BE only)
-        "§j":"color:#443A3B;", // Material Netherite (BE only)
-        "§m":"color:#971607;", // Material Redstone (BE only)
-        "§n":"color:#B4684D;", // Material Copper (BE only)
-        "§p":"color:#DEB12D;", // Material Gold (BE only)
-        "§q":"color:#47A036;", // Material Emerald (BE only)
-        "§s":"color:#2CBAA8;", // Material Diamond (BE only)
-        "§t":"color:#21497B;", // Material Lapis (BE only)
-        "§u":"color:#9A5CC6;"  // Material Amethyst (BE only)
-    },
-    formattingCodes : {
-        "§k": "font-family: 'Courier New', Courier, monospace; animation: obfuscate 1s infinite;", // Obfuscated
-        "§l": "font-weight: bold;", // Bold
-        "§m": "text-decoration: line-through;", // Strikethrough
-        "§n": "text-decoration: underline;", // Underline
-        "§o": "font-style: italic;", // Italic
-        "§r": "all: unset; font: inherit;" // Reset
-    }
-      
+    "§0":"color:#000000;", // Black
+    "§1":"color:#0000AA;", // Dark Blue
+    "§2":"color:#00AA00;", // Dark Green
+    "§3":"color:#00AAAA;", // Dark Aqua
+    "§4":"color:#AA0000;", // Dark Red
+    "§5":"color:#AA00AA;", // Dark Purple
+    "§6":"color:#FFAA00;", // Gold
+    "§7":"color:#AAAAAA;", // Gray
+    "§8":"color:#555555;", // Dark Gray
+    "§9":"color:#5555FF;", // Blue
+    "§a":"color:#55FF55;", // Green
+    "§b":"color:#55FFFF;", // Aqua
+    "§c":"color:#FF5555;", // Red
+    "§d":"color:#FF55FF;", // Light Purple
+    "§e":"color:#FFFF55;", // Yellow
+    "§f":"color:#FFFFFF;", // White
+    "§g":"color:#DDD605;", // Minecoin Gold (BE only)
+    "§h":"color:#E3D4D1;", // Material Quartz (BE only)
+    "§i":"color:#CECACA;", // Material Iron (BE only)
+    "§j":"color:#443A3B;", // Material Netherite (BE only)
+    "§m":"color:#971607;", // Material Redstone (BE only)
+    "§n":"color:#B4684D;", // Material Copper (BE only)
+    "§p":"color:#DEB12D;", // Material Gold (BE only)
+    "§q":"color:#47A036;", // Material Emerald (BE only)
+    "§s":"color:#2CBAA8;", // Material Diamond (BE only)
+    "§t":"color:#21497B;", // Material Lapis (BE only)
+    "§u":"color:#9A5CC6;",  // Material Amethyst (BE only)
+    "§k": "font-family: 'Courier New', Courier, monospace; animation: obfuscate 1s infinite;", // Obfuscated
+    "§l": "font-weight: bold;", // Bold
+    "§m": "text-decoration: line-through;", // Strikethrough
+    "§n": "text-decoration: underline;", // Underline
+    "§o": "font-style: italic;", // Italic
+    "§r": "all: unset; font: inherit;" // Reset
+  
 };
-
-
-console.log(minecraftFormattingCodes);
-
-
-
 search_form.addEventListener("submit", (event)=>
 {
     event.preventDefault()
@@ -167,7 +157,6 @@ async function load_data()
 async function displayItems(itemID, auctionData, itemData)
 {
     let itemImage =  getItemImage(itemID, auctionData);    
-    console.log(auctionData)
     if(!itemImage)
     {
         itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
@@ -252,6 +241,7 @@ function processAuctionData(auctionData)
     decodedItemData.then(data=>
         {
             const actuallyImportant  =  data.value.i.value.value[0].tag.value;
+            console.log(actuallyImportant)
             const id =  actuallyImportant.ExtraAttributes.value.id.value;
             displayItems(id, auctionData, actuallyImportant);
 }   
@@ -268,70 +258,50 @@ auctions_container.addEventListener("click",(event)=>
         //Item info display thingie
     }
 })
-function change_text(text)
+function assign_properties(stringie)
 {
-    const regex = /(§[0-9a-fk-or])+/g;
-    let matches = [];
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      matches.push(match[0]);
-    }
-    const properties= my_splice(text, matches,"§");
-    let string_begin = "<span style="
-
-    for(const[key,value] of Object.entries(properties))
-    {       
-        if(!key || !value)
+    const parts = stringie.split(/(?=§[0-9a-f])/);
+    const properties_map = {};
+    const find_weirdsymbol = /§/g;
+    let i = 0;
+    let a = 0;
+    for(i;i<parts.length;i++)
+    {
+        console.log(i)
+        if(((parts[i].length)/(parts[i].match(find_weirdsymbol).length))==2)
         {
-            console.log("ISSUE NOTED")
-            return
+            parts[i]=parts[i]+parts[i+1];
+            parts.splice(i+1,1);
+            i-=1;
         }
-        for(let i =0; i < key.length; i+=2)
-        {
-            const spliced_property =  key.slice(i, i+2);
-            console.log(spliced_property)
-            if(Object.keys(minecraftFormattingCodes.colorCodes).includes(spliced_property))
-            {
-                string_begin+=minecraftFormattingCodes.colorCodes[spliced_property];
-            }
-            else if(Object.keys(minecraftFormattingCodes.formattingCodes).includes(spliced_property))
-            {
-                string_begin+=minecraftFormattingCodes.formattingCodes[spliced_property]
-            }
-        }
-        string_begin+= `>${value}</span>`
     }
-    return string_begin
+    for(a;a<parts.length;a++)
+    {
+        const startIndex =  parts[a].match(find_weirdsymbol).length*2;
+        properties_map[parts[a].slice(startIndex)] = parts[a].slice(0, startIndex);
+    }
+    return properties_map
 }
-function my_splice(text, array, end_code)
+function apply_properties(propertyMap)
 {
-    const properties = {}
-    const values={}
-    array.forEach(detect=>
+    const element_list = [];
+    let new_element =  `<span style="`;
+    let i = 0;
+    for(const[key,value] of Object.entries(propertyMap))
     {
-        values[detect]=text.lastIndexOf(detect);
-        console.log(text.lastIndexOf(detect))
-    }
-    )
-    if(Object.keys(values).length<=1)
-    {
-    }
-    for(const[key,value] of Object.entries(values))
-    {
-        const StartIndex = value+key.length;
-        const endIndex =  text.indexOf(end_code, StartIndex);
-        if(endIndex!=(-1))
+        console.log(key,value);
+        for(i;i<(value.length/2);i++)
         {
-            const spliced_string = text.substring(StartIndex, endIndex);
-            properties[key]=spliced_string;
-            continue
+            const style =  minecraftFormattingCodes[value.slice(i*2,i*2+2)];
+            new_element+=style;
         }
-        properties[key]=text.substring(StartIndex, text[text.length]);
+        new_element+=`">${key}</span>`
+        element_list.push(new_element);
+        new_element = `<span style="`
     }
-    console.log(properties)
-    return properties;
+    return element_list;
 }
-function apply_armor_glint(item)
+function apply_armor_glint(item)//Too lazy to figure this out. Maybe do it Saturday
 {
     
 }
@@ -339,15 +309,22 @@ function apply_armor_glint(item)
 async function loadAuctionItemData(itemInfo)
 {
     const decodedData =  await decodeGzipped(itemInfo)
-    console.log(decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value)
     const lore =  decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value;
+    const name =  decodedData.value.i.value.value[0].tag.value.display.value.Name.value.value;
+    console.log(lore)
     item_info_dispay.textContent="";
     lore.forEach(line=>
     {
-        item_info_dispay.insertAdjacentHTML("beforeend",`${change_text(line)}`)
+        const assignedProperties =  assign_properties(line);
+        const appliedProperties = apply_properties(assignedProperties);
+        appliedProperties.forEach(item=>
+        {
+            item_info_dispay.insertAdjacentHTML("beforeend",`${item}<br>`)
+        }
+        )
     }
     )    
-
+    item_info_dispay.insertAdjacentHTML("afterbegin",`${apply_properties(assign_properties(name))}`);
 }
 //Implement a page function to reduce screen thingie
 
