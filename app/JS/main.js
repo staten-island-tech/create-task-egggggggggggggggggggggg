@@ -41,7 +41,8 @@ const minecraftFormattingCodes = {
     "§m": "text-decoration: line-through;", // Strikethrough
     "§n": "text-decoration: underline;", // Underline
     "§o": "font-style: italic;", // Italic
-    "§r": "all: unset; font: inherit;" // Reset
+    "§r": "all: unset; font: inherit;", // Reset
+    "§z": ""
   
 };
 search_form.addEventListener("submit", (event)=>
@@ -260,20 +261,26 @@ auctions_container.addEventListener("click",(event)=>
 })
 function assign_properties(stringie)
 {
+    console.log(stringie)
     const parts = stringie.split(/(?=§[0-9a-f])/);
     const properties_map = {};
     const find_weirdsymbol = /§/g;
     let i = 0;
     let a = 0;
+    console.log(parts, "assign_properties function ")
     for(i;i<parts.length;i++)
     {
-        console.log(i)
-        if(((parts[i].length)/(parts[i].match(find_weirdsymbol).length))==2)
+        if(parts[i]==" " || !parts[i])
+        {
+            parts[i]="§z "
+        }
+        else if((parts[i].length/parts[i].match(find_weirdsymbol).length)==2)
         {
             parts[i]=parts[i]+parts[i+1];
             parts.splice(i+1,1);
             i-=1;
         }
+        
     }
     for(a;a<parts.length;a++)
     {
@@ -284,6 +291,7 @@ function assign_properties(stringie)
 }
 function apply_properties(propertyMap)
 {
+    console.log(propertyMap, "apply_properties_function here")
     const element_list = [];
     let new_element =  `<span style="`;
     let i = 0;
@@ -315,13 +323,22 @@ async function loadAuctionItemData(itemInfo)
     item_info_dispay.textContent="";
     lore.forEach(line=>
     {
-        const assignedProperties =  assign_properties(line);
-        const appliedProperties = apply_properties(assignedProperties);
-        appliedProperties.forEach(item=>
+        console.log(line)
+        if(line!="" || line)
         {
-            item_info_dispay.insertAdjacentHTML("beforeend",`${item}<br>`)
+            const assignedProperties =  assign_properties(line);
+            const appliedProperties = apply_properties(assignedProperties);
+            appliedProperties.forEach(item=>
+            {
+                item_info_dispay.insertAdjacentHTML("beforeend",`${item}`)
+            }
+            )
+            item_info_dispay.insertAdjacentHTML("beforeend","<br>")
+            return;
         }
-        )
+        item_info_dispay.insertAdjacentHTML("beforeend", `<span></span><br>`)
+
+
     }
     )    
     item_info_dispay.insertAdjacentHTML("afterbegin",`${apply_properties(assign_properties(name))}`);
