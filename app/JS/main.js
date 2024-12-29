@@ -1,13 +1,18 @@
+//Imports
 import '../CSS/style.css';
 import * as nbt from 'prismarine-nbt';
 import {Buffer} from 'buffer';
 import pako from 'pako';
 import { decode } from 'punycode';
 
+
+
+//Important Variables
 const apiKey = import.meta.env.VITE_HYPIXEL_API_KEY;
 const search_form =  document.querySelector(".search_form");
 const auctions_container =  document.querySelector(".auctions_container")
 const item_info_dispay = document.querySelector(".item_info_display")
+const pageNavigation =  document.querySelector(".page_scroller");
 const minecraftFormattingCodes = {
     "§0":"color:#000000;", // Black
     "§1":"color:#0000AA;", // Dark Blue
@@ -45,23 +50,6 @@ const minecraftFormattingCodes = {
     "§z": ""
   
 };
-search_form.addEventListener("submit", (event)=>
-{
-    event.preventDefault()
-    const player_name = document.querySelector(".player_input").value;
-    if(player_name)
-    {
-        retrievePlayerAuctions(player_name)
-    }
-    console.log("Not a valid input")
-})
-async function retrievePlayerAuctions(player_name)
-{
-    const playerUUID =  await getPlayerUUID(player_name);
-    const player_auction_data =  await getData(`https://api.hypixel.net/v2/skyblock/auction?key=${apiKey}&player=${playerUUID}`)
-    return player_auction_data
-}
-
 function abbreviateItem(number) {
     if (number < 1000) return Math.round(number.toString());
     const units = ["k", "m", "b", "t"]; 
@@ -74,32 +62,6 @@ function fetchHead(Base64)
     Base64 =  JSON.parse(atob(Base64.replace(/\u003d/g,""))).textures.SKIN.url;
     Base64  = Base64.substring(Base64.lastIndexOf('/')+1);
     return(`https://mc-heads.net/head/${Base64}`)
-}
-async function getPlayerUUID(player_name)
-{
-    try
-    {
-        const uuidResponse =  await getData(`https://api.ashcon.app/mojang/v2/user/${player_name}`);
-        return uuidResponse.uuid.replace(/-/g,"")
-    }
-    catch(error)
-    {
-        console.error("Problem fetching player UUID", error);
-    }
-}
-async function get_minecraft_player_data(player_uuid)
-{
-    try{
-        const cleanedPlayerUuid =  player_uuid.replace(/-/g,"")
-        const playerNameResponse =  await getData(`https://sessionserver.mojang.com/session/minecraft/profile/${cleanedPlayerUuid}`);
-        const dehashed =  JSON.parse(atob(playerNameResponse));
-        console.log(dehashed)
-        return dehashed; 
-    }
-    catch(error)
-    {
-        console.error("problem fetching player data", error);
-    }
 }
 function EpochToDate(epoch)
 {
@@ -118,67 +80,6 @@ async function getData(url,error_message)
         console.error(error_message, error);
         throw error;
     }
-}
-const resourcemap = {};
-async function getItemData()
-{
-    try{
-        const resourcesResponse =  await getData('https://api.hypixel.net/v2/resources/skyblock/items');
-        resourcesResponse.items.forEach(item => {
-            if(!resourcemap[item.id])
-            {
-                resourcemap[item.id] = [];
-            }
-            resourcemap[item.id].push(item)
-        
-        });
-    }
-    catch(error)
-    {
-        console.error(error,"ERROR");
-    }
-}
-let auctionData;
-const auctionByUUID={};
-async function load_data()
-{
-    auctionData = await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
-    if(!auctionData)
-    {
-        return error;
-    }
-        auctionData.auctions.forEach(auction=>
-            {
-                auctionByUUID[auction.uuid]=[];
-                auctionByUUID[auction.uuid].push(auction);
-            }
-        ) 
-    return auctionData;
-}
-async function displayItems(itemID, auctionData, itemData)
-{
-    let itemImage =  getItemImage(itemID, auctionData);    
-    if(!itemImage)
-    {
-        itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
-
-        //Backup thingie 
-    }//Issues  =  ZOMBIE AND SKELETON SKULLS, 
-    if(itemData.ench)
-    {
-        //Apply enchantment glint here    
-    }
-    auctions_container.insertAdjacentHTML("beforeend",`
-        <div class="auction_item" data-uuid="${auctionData.uuid}">
-            <h2 class="item_header">${auctionData.item_name}</h2>
-            <img src="${itemImage}" class="item_image"alt="${auctionData.item_name}">
-            <h2>Auctioneer : }</h2>
-            <h2>Starting Bid : ${auctionData.starting_bid}</h2>
-            <h2>Start : ${EpochToDate(auctionData.start)} End : ${EpochToDate(auctionData.end)}</h2>
-            <h2></h2>
-        </div>
-        `)
-    
 }
 async function decodeGzipped(Gzipped)
 {
@@ -203,6 +104,96 @@ async function decodeGzipped(Gzipped)
         return error;
     }
 }
+
+
+
+
+//Load the general auctionData
+const resourcemap = {};
+let auctionData;
+const auctionByUUID={};
+const auctionElements=[];
+async function getItemData()
+{
+    try{
+        const resourcesResponse =  await getData('https://api.hypixel.net/v2/resources/skyblock/items');
+        resourcesResponse.items.forEach(item => {
+            if(!resourcemap[item.id])
+            {
+                resourcemap[item.id] = [];
+            }
+            resourcemap[item.id].push(item)
+        
+        });
+    }
+    catch(error)
+    {
+        console.error(error,"ERROR");
+    }
+}
+async function load_data()
+{
+    auctionData = await getData('https://api.hypixel.net/v2/skyblock/auctions', "FAILED TO RETRIEVE AUCTION");
+    if(!auctionData)
+    {
+        return error;
+    }
+        auctionData.auctions.forEach(auction=>
+            {
+                auctionByUUID[auction.uuid]=[];
+                auctionByUUID[auction.uuid].push(auction);
+            }
+        ) 
+    return auctionData;
+}
+async function load_website()
+{
+    await getItemData();
+    const auction_data =  await load_data();
+    for (const auction of Object.values(auction_data.auctions)) {
+        await processAuctionData(auction);
+    }
+}
+async function processAuctionData(auctionData)
+{   
+    const itemData =  auctionData.item_bytes;
+    const decodedItemData = await decodeGzipped(itemData);
+    const importantDataArray = decodedItemData.value.i.value.value;
+        
+    // Iterate over the array using for...of
+    for (const item of importantDataArray) {
+        const actuallyImportant = item.tag.value;
+        console.log(actuallyImportant);
+        
+        const id = actuallyImportant.ExtraAttributes.value.id.value;
+        await displayItems(id, auctionData, actuallyImportant);
+    }
+}
+async function displayItems(itemID, auctionData, itemData)//Might refactor this later
+{
+    let itemImage =  getItemImage(itemID, auctionData);    
+    if(!itemImage)
+    {
+        itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
+        //Backup thingie 
+    }//Issues  =  ZOMBIE AND SKELETON SKULLS, 
+    if(itemData.ench)
+    {
+        //Apply enchantment glint here    
+    }
+    auctionElements.push(`
+        <div class="auction_item" data-uuid="${auctionData.uuid}">
+            <h2 class="item_header">${auctionData.item_name}</h2>
+            <img src="${itemImage}" class="item_image"alt="${auctionData.item_name}">
+            <h2>Auctioneer : }</h2>
+            <h2>Starting Bid : ${abbreviateItem(auctionData.starting_bid)}</h2>
+            <h2>Start : ${EpochToDate(auctionData.start)} End : ${EpochToDate(auctionData.end)}</h2>
+            <h2></h2>
+        </div>
+        `)
+    console.log("ELEMENT WAS PUSHED")
+    //Gonna replace with new system
+}
 function getItemImage(image_name)
 {
     try{
@@ -224,31 +215,55 @@ function getItemImage(image_name)
         console.error(error, image_name, "Issue detected");
     }
 }
-async function load_website()
+async function test()
 {
-    await getItemData();
-    const auction_data =  await load_data();
-    auction_data.auctions.forEach(auction=>
-        {
-            processAuctionData(auction);
-        }
-    )
+    await load_website();
+    console.log("Starting execution")
+    navigateToPage(page_number)
+    console.log(auctionElements)
 
 }
-function processAuctionData(auctionData)
-{   
-    const itemData =  auctionData.item_bytes;
-    const decodedItemData = decodeGzipped(itemData);
-    decodedItemData.then(data=>
-        {
-            const actuallyImportant  =  data.value.i.value.value[0].tag.value;
-            console.log(actuallyImportant)
-            const id =  actuallyImportant.ExtraAttributes.value.id.value;
-            displayItems(id, auctionData, actuallyImportant);
-}   
-)  
+test()
+
+
+
+//Page scrolling functionality
+
+
+const item_amount = 1000 //will replace with method to get total items;
+const item_per_page =  25;
+let page_number = 1; //Gonna be the default page number
+const total_pages =  Math.ceil(item_amount/item_per_page);
+function navigateToPage(page)
+{
+    if(page<=0|| page>total_pages)
+    {
+        page_number = page<=0?1:total_pages;
+        return;
+    }
+    auctions_container.innerHTML="";
+    for(let i = (page*item_per_page)-item_per_page;i<page*item_per_page;i++)
+    {
+        console.log(auctionElements[i])
+        auctions_container.insertAdjacentHTML("beforeend", auctionElements[i]);
+    }
 }
-load_website()
+function getPageNumber(event)
+{
+    event.preventDefault();
+    const clickedButton =  event.target.value;
+    if(clickedButton == "previous"){page_number-=1;}else if(clickedButton == "next"){page_number+=1};
+    navigateToPage(page_number)
+}
+
+
+
+
+
+
+
+
+//Displays indepth information
 auctions_container.addEventListener("click",(event)=>
 {
     const clicked =  event.target.closest(".auction_item");
@@ -349,3 +364,51 @@ async function loadAuctionItemData(itemInfo)
 //Work on finishing searchbar
 //Take searchbar info and pass t
 //Utilize auction uuid
+
+
+
+
+
+//Part 2 stuff
+search_form.addEventListener("submit", (event)=>
+{
+    event.preventDefault()
+    const player_name = document.querySelector(".player_input").value;
+    if(player_name)
+    {
+        retrievePlayerAuctions(player_name)
+    }
+    console.log("Not a valid input")
+})
+async function retrievePlayerAuctions(player_name)
+{
+    const playerUUID =  await getPlayerUUID(player_name);
+    const player_auction_data =  await getData(`https://api.hypixel.net/v2/skyblock/auction?key=${apiKey}&player=${playerUUID}`)
+    return player_auction_data
+}
+async function getPlayerUUID(player_name)
+{
+try
+{
+    const uuidResponse =  await getData(`https://api.ashcon.app/mojang/v2/user/${player_name}`);
+    return uuidResponse.uuid.replace(/-/g,"")
+}
+catch(error)
+{
+    console.error("Problem fetching player UUID", error);
+}
+}
+async function get_minecraft_player_data(player_uuid)
+{
+    try{
+        const cleanedPlayerUuid =  player_uuid.replace(/-/g,"")
+        const playerNameResponse =  await getData(`https://sessionserver.mojang.com/session/minecraft/profile/${cleanedPlayerUuid}`);
+        const dehashed =  JSON.parse(atob(playerNameResponse));
+        console.log(dehashed)
+        return dehashed; 
+    }
+    catch(error)
+    {
+        console.error("problem fetching player data", error);
+    }
+}
