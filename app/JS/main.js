@@ -259,61 +259,67 @@ auctions_container.addEventListener("click",(event)=>
         //Item info display thingie
     }
 })
-function assign_properties(stringie)
-{
-    console.log(stringie)
-    const parts = stringie.split(/(?=§[0-9a-f])/);
-    const properties_map = {};
-    const find_weirdsymbol = /§/g;
-    let i = 0;
-    let a = 0;
-    console.log(parts, "assign_properties function ")
-    for(i;i<parts.length;i++)
+function isEmptyOrWhitespace(str) {
+    return str.trim().length === 0;
+}
+function assign_properties(str){
+    const parts = str.split(/(?=§[0-9a-f])/);
+    const propertyMap = {}
+    console.log(parts)
+    const find_formatsymbol =  /§/g;
+    const regex_check =  /^\s*$/;
+    for(let i;i<parts.length;i++)
     {
-        if(parts[i]==" " || !parts[i])
+        if(isEmptyOrWhitespace(parts[i]))
         {
-            parts[i]="§z "
+            console.log("REGEXCHECK DTETECTEd")
+            continue;
         }
-        else if((parts[i].length/parts[i].match(find_weirdsymbol).length)==2)
+        console.log(parts[i])
+        if((parts[i].length/parts[i].match(find_formatsymbol).length) == 2)
         {
-            parts[i]=parts[i]+parts[i+1];
-            parts.splice(i+1,1);
+            parts[i]=parts[i]+parts[i+1]
+            parts.splice(i+1,1)
             i-=1;
         }
-        
     }
-    for(a;a<parts.length;a++)
+    for(let b=0;b<parts.length;b++)
     {
-        const startIndex =  parts[a].match(find_weirdsymbol).length*2;
-        properties_map[parts[a].slice(startIndex)] = parts[a].slice(0, startIndex);
+        if(isEmptyOrWhitespace(parts[b]))
+        {
+            console.log("REGEXCHECK DTETECTEd", parts[b], parts)
+            continue;
+        }
+        const startIndex = parts[b].match(find_formatsymbol).length *2
+        propertyMap[parts[b].slice(startIndex)] = parts[b].slice(0, startIndex);
     }
-    return properties_map
+    apply_properties(propertyMap);
 }
-function apply_properties(propertyMap)
+function apply_properties(list)
 {
-    console.log(propertyMap, "apply_properties_function here")
     const element_list = [];
-    let new_element =  `<span style="`;
-    let i = 0;
-    for(const[key,value] of Object.entries(propertyMap))
+    let new_element =  `<span style="`
+    for(const[key,value] of Object.entries(list))
     {
         console.log(key,value);
-        for(i;i<(value.length/2);i++)
+        for(let i=0;i<(value.length/2);i++)
         {
-            const style =  minecraftFormattingCodes[value.slice(i*2,i*2+2)];
+            const style = minecraftFormattingCodes[value.slice(i*2,i*2+2)];
             new_element+=style;
         }
         new_element+=`">${key}</span>`
         element_list.push(new_element);
-        new_element = `<span style="`
+        new_element=`<span style="`
     }
-    return element_list;
-}
-function apply_armor_glint(item)//Too lazy to figure this out. Maybe do it Saturday
-{
-    
-}
+    console.log(element_list)
+    element_list.forEach(item=>
+    {
+        item_info_dispay.insertAdjacentHTML("beforeend",`${item}`)
+    }
+    )
+    item_info_dispay.insertAdjacentHTML("beforeend","<br>")
 
+}
 async function loadAuctionItemData(itemInfo)
 {
     const decodedData =  await decodeGzipped(itemInfo)
@@ -323,25 +329,14 @@ async function loadAuctionItemData(itemInfo)
     item_info_dispay.textContent="";
     lore.forEach(line=>
     {
-        console.log(line)
-        if(line!="" || line)
+        if(!line)
         {
-            const assignedProperties =  assign_properties(line);
-            const appliedProperties = apply_properties(assignedProperties);
-            appliedProperties.forEach(item=>
-            {
-                item_info_dispay.insertAdjacentHTML("beforeend",`${item}`)
-            }
-            )
             item_info_dispay.insertAdjacentHTML("beforeend","<br>")
             return;
         }
-        item_info_dispay.insertAdjacentHTML("beforeend", `<span></span><br>`)
-
-
+        assign_properties(line)
     }
     )    
-    item_info_dispay.insertAdjacentHTML("afterbegin",`${apply_properties(assign_properties(name))}`);
 }
 //Implement a page function to reduce screen thingie
 
@@ -353,4 +348,4 @@ async function loadAuctionItemData(itemInfo)
 
 //Work on finishing searchbar
 //Take searchbar info and pass t
-//Utilize auction uuid 
+//Utilize auction uuid
