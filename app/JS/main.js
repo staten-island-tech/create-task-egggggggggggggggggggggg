@@ -221,15 +221,13 @@ async function test()
     console.log("Starting execution")
     navigateToPage(page_number)
     console.log(auctionElements)
+    console.log(auctionElements.length)
 
 }
 test()
 
 
-
 //Page scrolling functionality
-
-
 const item_amount = 1000 //will replace with method to get total items;
 const item_per_page =  25;
 let page_number = 1; //Gonna be the default page number
@@ -244,19 +242,20 @@ function navigateToPage(page)
     auctions_container.innerHTML="";
     for(let i = (page*item_per_page)-item_per_page;i<page*item_per_page;i++)
     {
-        console.log(auctionElements[i])
         auctions_container.insertAdjacentHTML("beforeend", auctionElements[i]);
     }
 }
-function getPageNumber(event)
+
+const stupid_form = document.querySelector(".page_form");
+stupid_form.addEventListener("submit", function(event)
 {
-    event.preventDefault();
-    const clickedButton =  event.target.value;
+    event.preventDefault()
+    console.log("Something was done")
+    const clickedButton = event.submitter.value;
+    console.log(clickedButton)
     if(clickedButton == "previous"){page_number-=1;}else if(clickedButton == "next"){page_number+=1};
     navigateToPage(page_number)
-}
-
-
+})
 
 
 
@@ -349,7 +348,7 @@ async function loadAuctionItemData(itemInfo)
             item_info_dispay.insertAdjacentHTML("beforeend","<br>")
             return;
         }
-        assign_properties(line)
+        assign_properties(line) 
     }
     )    
 }

@@ -31,7 +31,7 @@ body {
 .auctions_container {
     width: 50%;
     display: grid;
-    grid-template-columns: repeat(6, 20rem);
+    grid-template-columns: repeat(5, 20rem);
     gap: 1rem;
     margin: 1rem;
     padding: 1rem;
