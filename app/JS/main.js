@@ -174,8 +174,16 @@ async function displayItems(itemID, auctionData, itemData)//Might refactor this 
     let itemImage =  getItemImage(itemID, auctionData);    
     if(!itemImage)
     {
-        itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
-        //Backup thingie 
+        try{
+            itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
+        }
+        catch(error)
+        {
+            console.error(error);
+            console.log("NULL ITEM");
+            return;
+        }
+            //Backup thingie 
     }//Issues  =  ZOMBIE AND SKELETON SKULLS, 
     if(itemData.ench)
     {
@@ -215,7 +223,7 @@ function getItemImage(image_name)
         console.error(error, image_name, "Issue detected");
     }
 }
-async function test()
+async function start()
 {
     await load_website();
     console.log("Starting execution")
@@ -224,7 +232,7 @@ async function test()
     console.log(auctionElements.length)
 
 }
-test()
+start()
 
 
 //Page scrolling functionality
@@ -403,7 +411,7 @@ async function get_minecraft_player_data(player_uuid)
         const cleanedPlayerUuid =  player_uuid.replace(/-/g,"")
         const playerNameResponse =  await getData(`https://sessionserver.mojang.com/session/minecraft/profile/${cleanedPlayerUuid}`);
         const dehashed =  JSON.parse(atob(playerNameResponse));
-        console.log(dehashed)
+        console.log(dehashed);
         return dehashed; 
     }
     catch(error)
