@@ -185,20 +185,15 @@ async function displayItems(itemID, auctionData, itemData)//Might refactor this 
         }
             //Backup thingie 
     }//Issues  =  ZOMBIE AND SKELETON SKULLS, 
-    if(itemData.ench)
-    {
-        //Apply enchantment glint here    
+    const auction =  {
+        uuid:auctionData.uuid,
+        item_name:auctionData.item_name,
+        image:itemImage,
+        normal_bid:abbreviateItem(auctionData.starting_bid),
+        start:EpochToDate(auctionData.start),
+        end:EpochToDate(auctionData.end)
     }
-    auctionElements.push(`
-        <div class="auction_item" data-uuid="${auctionData.uuid}">
-            <h2 class="item_header">${auctionData.item_name}</h2>
-            <img src="${itemImage}" class="item_image"alt="${auctionData.item_name}">
-            <h2>Auctioneer : }</h2>
-            <h2>Starting Bid : ${abbreviateItem(auctionData.starting_bid)}</h2>
-            <h2>Start : ${EpochToDate(auctionData.start)} End : ${EpochToDate(auctionData.end)}</h2>
-            <h2></h2>
-        </div>
-        `)
+    auctionElements.push(auction);
     console.log("ELEMENT WAS PUSHED")
     //Gonna replace with new system
 }
@@ -250,7 +245,16 @@ function navigateToPage(page)
     auctions_container.innerHTML="";
     for(let i = (page*item_per_page)-item_per_page;i<page*item_per_page;i++)
     {
-        auctions_container.insertAdjacentHTML("beforeend", auctionElements[i]);
+        auctions_container.insertAdjacentHTML("beforeend", 
+    `       <div class="auction_item" data-uuid="${auctionElements[i].uuid}">
+                <h2 class="item_header">${auctionElements[i].item_name}</h2>
+                <img src="${auctionElements[i].image}" class="item_image"alt="${auctionElements[i].item_name}">
+                <h2>Auctioneer : }</h2>
+                <h2>Starting Bid : ${abbreviateItem(auctionElements[i].starting_bid)}</h2>
+                <h2>Start : ${auctionElements[i].start} End : ${auctionElements[i].end}</h2>
+                <h2></h2>
+            </div>`
+        );
     }
 }
 
@@ -371,51 +375,3 @@ async function loadAuctionItemData(itemInfo)
 //Work on finishing searchbar
 //Take searchbar info and pass t
 //Utilize auction uuid
-
-
-
-
-
-//Part 2 stuff
-search_form.addEventListener("submit", (event)=>
-{
-    event.preventDefault()
-    const player_name = document.querySelector(".player_input").value;
-    if(player_name)
-    {
-        retrievePlayerAuctions(player_name)
-    }
-    console.log("Not a valid input")
-})
-async function retrievePlayerAuctions(player_name)
-{
-    const playerUUID =  await getPlayerUUID(player_name);
-    const player_auction_data =  await getData(`https://api.hypixel.net/v2/skyblock/auction?key=${apiKey}&player=${playerUUID}`)
-    return player_auction_data
-}
-async function getPlayerUUID(player_name)
-{
-try
-{
-    const uuidResponse =  await getData(`https://api.ashcon.app/mojang/v2/user/${player_name}`);
-    return uuidResponse.uuid.replace(/-/g,"")
-}
-catch(error)
-{
-    console.error("Problem fetching player UUID", error);
-}
-}
-async function get_minecraft_player_data(player_uuid)
-{
-    try{
-        const cleanedPlayerUuid =  player_uuid.replace(/-/g,"")
-        const playerNameResponse =  await getData(`https://sessionserver.mojang.com/session/minecraft/profile/${cleanedPlayerUuid}`);
-        const dehashed =  JSON.parse(atob(playerNameResponse));
-        console.log(dehashed);
-        return dehashed; 
-    }
-    catch(error)
-    {
-        console.error("problem fetching player data", error);
-    }
-}
