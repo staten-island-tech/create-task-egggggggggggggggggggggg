@@ -1,15 +1,9 @@
-//Imports
 import '../CSS/style.css';
 import * as nbt from 'prismarine-nbt';
 import {Buffer} from 'buffer';
 import pako from 'pako';
 import { decode } from 'punycode';
-
-
-
-//Important Variables
 const apiKey = import.meta.env.VITE_HYPIXEL_API_KEY;
-const search_form =  document.querySelector(".search_form");
 const auctions_container =  document.querySelector(".auctions_container")
 const item_info_dispay = document.querySelector(".item_info_display")
 const pageNavigation =  document.querySelector(".page_scroller");
@@ -107,8 +101,6 @@ async function decodeGzipped(Gzipped)
 
 
 
-
-//Load the general auctionData
 const resourcemap = {};
 let auctionData;
 const auctionByUUID={};
@@ -159,17 +151,13 @@ async function processAuctionData(auctionData)
     const itemData =  auctionData.item_bytes;
     const decodedItemData = await decodeGzipped(itemData);
     const importantDataArray = decodedItemData.value.i.value.value;
-        
-    // Iterate over the array using for...of
     for (const item of importantDataArray) {
         const actuallyImportant = item.tag.value;
-        console.log(actuallyImportant);
-        
         const id = actuallyImportant.ExtraAttributes.value.id.value;
         await displayItems(id, auctionData, actuallyImportant);
     }
 }
-async function displayItems(itemID, auctionData, itemData)//Might refactor this later
+async function displayItems(itemID, auctionData, itemData)
 {
     let itemImage =  getItemImage(itemID, auctionData);    
     if(!itemImage)
@@ -178,14 +166,11 @@ async function displayItems(itemID, auctionData, itemData)//Might refactor this 
             itemImage = fetchHead(itemData.SkullOwner.value.Properties.value.textures.value.value[0].Value.value);
         }
         catch(error)
-        {
-            console.error(error);
-            console.log("NULL ITEM");
-            return;
+            {
+                return;
+            }
         }
-            //Backup thingie 
-    }//Issues  =  ZOMBIE AND SKELETON SKULLS, 
-    const auction =  {
+        const auction =  {
         uuid:auctionData.uuid,
         item_name:auctionData.item_name,
         image:itemImage,
@@ -194,8 +179,6 @@ async function displayItems(itemID, auctionData, itemData)//Might refactor this 
         end:EpochToDate(auctionData.end)
     }
     auctionElements.push(auction);
-    console.log("ELEMENT WAS PUSHED")
-    //Gonna replace with new system
 }
 function getItemImage(image_name)
 {
@@ -221,19 +204,14 @@ function getItemImage(image_name)
 async function start()
 {
     await load_website();
-    console.log("Starting execution")
     navigateToPage(page_number)
-    console.log(auctionElements)
-    console.log(auctionElements.length)
-
 }
 start()
 
 
-//Page scrolling functionality
-const item_amount = 1000 //will replace with method to get total items;
+const item_amount = 1000 
 const item_per_page =  25;
-let page_number = 1; //Gonna be the default page number
+let page_number = 1; 
 const total_pages =  Math.ceil(item_amount/item_per_page);
 function navigateToPage(page)
 {
@@ -262,9 +240,7 @@ const stupid_form = document.querySelector(".page_form");
 stupid_form.addEventListener("submit", function(event)
 {
     event.preventDefault()
-    console.log("Something was done")
     const clickedButton = event.submitter.value;
-    console.log(clickedButton)
     if(clickedButton == "previous"){page_number-=1;}else if(clickedButton == "next"){page_number+=1};
     navigateToPage(page_number)
 })
@@ -274,15 +250,13 @@ stupid_form.addEventListener("submit", function(event)
 
 
 
-//Displays indepth information
 auctions_container.addEventListener("click",(event)=>
 {
     const clicked =  event.target.closest(".auction_item");
     if(clicked!=null)
     {
         const auction_uuid = clicked.dataset.uuid
-        loadAuctionItemData(auctionByUUID[auction_uuid][0].item_bytes)
-        //Item info display thingie
+        loadAuctionItemData(auctionByUUID[auction_uuid][0])
     }
 })
 function isEmptyOrWhitespace(str) {
@@ -291,17 +265,14 @@ function isEmptyOrWhitespace(str) {
 function assign_properties(str){
     const parts = str.split(/(?=§[0-9a-f])/);
     const propertyMap = {}
-    console.log(parts)
     const find_formatsymbol =  /§/g;
     const regex_check =  /^\s*$/;
     for(let i;i<parts.length;i++)
     {
         if(isEmptyOrWhitespace(parts[i]))
         {
-            console.log("REGEXCHECK DTETECTEd")
             continue;
         }
-        console.log(parts[i])
         if((parts[i].length/parts[i].match(find_formatsymbol).length) == 2)
         {
             parts[i]=parts[i]+parts[i+1]
@@ -313,7 +284,6 @@ function assign_properties(str){
     {
         if(isEmptyOrWhitespace(parts[b]))
         {
-            console.log("REGEXCHECK DTETECTEd", parts[b], parts)
             continue;
         }
         const startIndex = parts[b].match(find_formatsymbol).length *2
@@ -327,7 +297,6 @@ function apply_properties(list)
     let new_element =  `<span style="`
     for(const[key,value] of Object.entries(list))
     {
-        console.log(key,value);
         for(let i=0;i<(value.length/2);i++)
         {
             const style = minecraftFormattingCodes[value.slice(i*2,i*2+2)];
@@ -337,7 +306,6 @@ function apply_properties(list)
         element_list.push(new_element);
         new_element=`<span style="`
     }
-    console.log(element_list)
     element_list.forEach(item=>
     {
         item_info_dispay.insertAdjacentHTML("beforeend",`${item}`)
@@ -348,10 +316,9 @@ function apply_properties(list)
 }
 async function loadAuctionItemData(itemInfo)
 {
-    const decodedData =  await decodeGzipped(itemInfo)
+    const decodedData =  await decodeGzipped(itemInfo.item_bytes)
     const lore =  decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value;
     const name =  decodedData.value.i.value.value[0].tag.value.display.value.Name.value.value;
-    console.log(lore)
     item_info_dispay.textContent="";
     lore.forEach(line=>
     {
@@ -363,15 +330,10 @@ async function loadAuctionItemData(itemInfo)
         assign_properties(line) 
     }
     )    
+    const auctioneerImage =  `https://skins.danielraybone.com/v1/render/body/${itemInfo.auctioneer}`
+    item_info_dispay.insertAdjacentHTML("beforeend",`<img class="playerModelImage" src=${auctioneerImage}>`)
 }
-//Implement a page function to reduce screen thingie
 
-//Create an array for auctionData
-//get the items name. check it with the auctionData dictionary 
-//Check for item.bytes to get the info on the item
-//get auctioneer and pass it through a function to get that player's skin.
-//Add a live timer ig
 
-//Work on finishing searchbar
-//Take searchbar info and pass t
-//Utilize auction uuid
+
+//Item info thingie

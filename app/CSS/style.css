@@ -20,7 +20,8 @@ body {
     background-color: grey;
     width: 20rem;
     height: 20rem;
-    border-radius: 1rem;
+    border-radius: 1px;
+    border-width: 10px;
 }
 
 .item_header {
@@ -51,7 +52,7 @@ body {
     justify-content: space-between;
     display: flex;
     width: 100%;
-    margin:10px;
+    margin: 10px;
     text-align: center;
 
 }
@@ -83,4 +84,10 @@ body {
 @font-face {
     font-family: "italic_minecraft";
     src: url('/minecraft_font/MinecraftItalic-R8Mo.otf');
+}
+
+.playerModelImage {
+    margin: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
 }
