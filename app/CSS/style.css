@@ -41,20 +41,20 @@ body {
 
 .item_info_display {
     background-color: black;
-    border-color: blue;
-    border: 10px;
-    border-radius: 10px;
+    border: blue solid 10px;
+    border-radius: 5px;
     padding: 10px;
-    position: absolute;
+    float: right;
+    align-items: left;
+    margin: 3rem;
+    width: 50%;
 }
 
 .auction_display {
     justify-content: space-between;
     display: flex;
-    width: 100%;
     margin: 10px;
     text-align: center;
-
 }
 
 @font-face {
@@ -91,3 +91,9 @@ body {
     padding: 10px;
     background-color: rgba(0, 0, 0, 0.5);
 }
+
+.item_description {
+    font-size: 1.5rem;
+}
+
+.move {}

@@ -265,8 +265,8 @@ function isEmptyOrWhitespace(str) {
 function assign_properties(str){
     const parts = str.split(/(?=§[0-9a-f])/);
     const propertyMap = {}
+    //Fix duplicate properties
     const find_formatsymbol =  /§/g;
-    const regex_check =  /^\s*$/;
     for(let i;i<parts.length;i++)
     {
         if(isEmptyOrWhitespace(parts[i]))
@@ -289,12 +289,14 @@ function assign_properties(str){
         const startIndex = parts[b].match(find_formatsymbol).length *2
         propertyMap[parts[b].slice(startIndex)] = parts[b].slice(0, startIndex);
     }
+    console.log(propertyMap)
     apply_properties(propertyMap);
 }
+//If duplicate characters like , appear within the stirng
 function apply_properties(list)
 {
     const element_list = [];
-    let new_element =  `<span style="`
+    let new_element =  `<span class="item_description" style="`
     for(const[key,value] of Object.entries(list))
     {
         for(let i=0;i<(value.length/2);i++)
@@ -304,7 +306,7 @@ function apply_properties(list)
         }
         new_element+=`">${key}</span>`
         element_list.push(new_element);
-        new_element=`<span style="`
+        new_element=`<span class="item_description" style="`
     }
     element_list.forEach(item=>
     {
@@ -328,8 +330,10 @@ async function loadAuctionItemData(itemInfo)
             return;
         }
         assign_properties(line) 
+
     }
     )    
+    console.log(lore)
     const auctioneerImage =  `https://skins.danielraybone.com/v1/render/body/${itemInfo.auctioneer}`
     item_info_dispay.insertAdjacentHTML("beforeend",`<img class="playerModelImage" src=${auctioneerImage}>`)
 }
