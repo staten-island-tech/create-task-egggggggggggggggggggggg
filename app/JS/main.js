@@ -46,7 +46,7 @@ const minecraftFormattingCodes = {
 };
 function abbreviateItem(number) {
     if (number < 1000) return Math.round(number.toString());
-    const units = ["k", "m", "b", "t"]; 
+    const units = ["K", "M", "B", "T"]; 
     const scale = Math.min(Math.floor(Math.log10(number) / 3), units.length); 
     const abbreviatedValue = number / Math.pow(1000, scale);
     return abbreviatedValue.toFixed(1) + (units[scale - 1] || "");
@@ -57,10 +57,13 @@ function fetchHead(Base64)
     Base64  = Base64.substring(Base64.lastIndexOf('/')+1);
     return(`https://mc-heads.net/head/${Base64}`)
 }
-function EpochToDate(epoch)
-{
-    const date =  new Date(epoch);
-    return date.toString();
+function EpochToDate(epoch) {
+    const date = new Date(epoch);
+    const month = date.getMonth() + 1;  
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    return `${month}/${day}/${year}`;  
 }
 async function getData(url,error_message)
 {
@@ -178,6 +181,7 @@ async function displayItems(itemID, auctionData, itemData)
         start:EpochToDate(auctionData.start),
         end:EpochToDate(auctionData.end)
     }
+    console.log(auctionData.start, auctionData.end)
     auctionElements.push(auction);
 }
 function getItemImage(image_name)
@@ -221,6 +225,7 @@ function navigateToPage(page)
         return;
     }
     auctions_container.innerHTML="";
+    console.log(auctionElements)
     for(let i = (page*item_per_page)-item_per_page;i<page*item_per_page;i++)
     {
         auctions_container.insertAdjacentHTML("beforeend", 
@@ -228,8 +233,9 @@ function navigateToPage(page)
                 <h2 class="item_header">${auctionElements[i].item_name}</h2>
                 <img src="${auctionElements[i].image}" class="item_image"alt="${auctionElements[i].item_name}">
                 <h2>Auctioneer : }</h2>
-                <h2>Starting Bid : ${abbreviateItem(auctionElements[i].starting_bid)}</h2>
-                <h2>Start : ${auctionElements[i].start} End : ${auctionElements[i].end}</h2>
+                <h2>Starting Bid : ${auctionElements[i].normal_bid}</h2>
+                <h2>Start : ${auctionElements[i].start}</h2>
+                <h2>End : ${auctionElements[i].end}</h2>
                 <h2></h2>
             </div>`
         );
@@ -256,7 +262,7 @@ auctions_container.addEventListener("click",(event)=>
     if(clicked!=null)
     {
         const auction_uuid = clicked.dataset.uuid
-        loadAuctionItemData(auctionByUUID[auction_uuid][0])
+        loadAuctionItemData(auctionByUUID[auction_uuid][0], auction_uuid)
     }
 })
 function isEmptyOrWhitespace(str) {
@@ -316,12 +322,17 @@ function apply_properties(list)
     item_info_dispay.insertAdjacentHTML("beforeend","<br>")
 
 }
-async function loadAuctionItemData(itemInfo)
+async function loadAuctionItemData(itemInfo, auction_uuid)
 {
     const decodedData =  await decodeGzipped(itemInfo.item_bytes)
     const lore =  decodedData.value.i.value.value[0].tag.value.display.value.Lore.value.value;
-    const name =  decodedData.value.i.value.value[0].tag.value.display.value.Name.value.value;
+    const name =  decodedData.value.i.value.value[0].tag.value.display.value.Name.value;
     item_info_dispay.textContent="";
+    console.log(decodedData)
+    const itemPhoto =  document.querySelector(`.auction_item[data-uuid="${auction_uuid}]`)
+    const photo =  itemPhoto.querySelector("img");
+    console.log(photo)
+    assign_properties(name)
     lore.forEach(line=>
     {
         if(!line)
@@ -333,7 +344,7 @@ async function loadAuctionItemData(itemInfo)
 
     }
     )    
-    console.log(lore)
+
     const auctioneerImage =  `https://skins.danielraybone.com/v1/render/body/${itemInfo.auctioneer}`
     item_info_dispay.insertAdjacentHTML("beforeend",`<img class="playerModelImage" src=${auctioneerImage}>`)
 }
