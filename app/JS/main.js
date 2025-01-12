@@ -8,42 +8,42 @@ const auctions_container =  document.querySelector(".auctions_container")
 const item_info_dispay = document.querySelector(".item_info_display")
 const pageNavigation =  document.querySelector(".page_scroller");
 const minecraftFormattingCodes = {
-    "§0":"color:#000000;", // Black
-    "§1":"color:#0000AA;", // Dark Blue
-    "§2":"color:#00AA00;", // Dark Green
-    "§3":"color:#00AAAA;", // Dark Aqua
-    "§4":"color:#AA0000;", // Dark Red
-    "§5":"color:#AA00AA;", // Dark Purple
-    "§6":"color:#FFAA00;", // Gold
-    "§7":"color:#AAAAAA;", // Gray
-    "§8":"color:#555555;", // Dark Gray
-    "§9":"color:#5555FF;", // Blue
-    "§a":"color:#55FF55;", // Green
-    "§b":"color:#55FFFF;", // Aqua
-    "§c":"color:#FF5555;", // Red
-    "§d":"color:#FF55FF;", // Light Purple
-    "§e":"color:#FFFF55;", // Yellow
-    "§f":"color:#FFFFFF;", // White
-    "§g":"color:#DDD605;", // Minecoin Gold (BE only)
-    "§h":"color:#E3D4D1;", // Material Quartz (BE only)
-    "§i":"color:#CECACA;", // Material Iron (BE only)
-    "§j":"color:#443A3B;", // Material Netherite (BE only)
-    "§m":"color:#971607;", // Material Redstone (BE only)
-    "§n":"color:#B4684D;", // Material Copper (BE only)
-    "§p":"color:#DEB12D;", // Material Gold (BE only)
-    "§q":"color:#47A036;", // Material Emerald (BE only)
-    "§s":"color:#2CBAA8;", // Material Diamond (BE only)
-    "§t":"color:#21497B;", // Material Lapis (BE only)
-    "§u":"color:#9A5CC6;",  // Material Amethyst (BE only)
-    "§k": "font-family: 'Courier New', Courier, monospace; animation: obfuscate 1s infinite;", // Obfuscated
-    "§l": "font-weight: bold;", // Bold
-    "§m": "text-decoration: line-through;", // Strikethrough
-    "§n": "text-decoration: underline;", // Underline
-    "§o": "font-style: italic;", // Italic
-    "§r": "all: unset; font: inherit;", // Reset
+    "§0": "color:#000000;", 
+    "§1": "color:#0000AA;", 
+    "§2": "color:#00AA00;",
+    "§3": "color:#00AAAA;", 
+    "§4": "color:#AA0000;", 
+    "§5": "color:#AA00AA;",
+    "§6": "color:#FFAA00;", 
+    "§7": "color:#AAAAAA;", 
+    "§8": "color:#555555;", 
+    "§9": "color:#5555FF;", 
+    "§a": "color:#55FF55;", 
+    "§b": "color:#55FFFF;", 
+    "§c": "color:#FF5555;", 
+    "§d": "color:#FF55FF;", 
+    "§e": "color:#FFFF55;", 
+    "§f": "color:#FFFFFF;", 
+    "§g": "color:#DDD605;", 
+    "§h": "color:#E3D4D1;", 
+    "§i": "color:#CECACA;", 
+    "§j": "color:#443A3B;", 
+    "§m": "color:#971607;", 
+    "§n": "color:#B4684D;", 
+    "§p": "color:#DEB12D;", 
+    "§q": "color:#47A036;", 
+    "§s": "color:#2CBAA8;", 
+    "§t": "color:#21497B;", 
+    "§u": "color:#9A5CC6;",  
+    "§k": "font-family: 'Courier New', Courier, monospace; animation: obfuscate 1s infinite;", 
+    "§l": "font-weight: bold;", 
+    "§m": "text-decoration: line-through;", 
+    "§n": "text-decoration: underline;", 
+    "§o": "font-style: italic;", 
+    "§r": "all: unset; font: inherit;", 
     "§z": ""
-  
 };
+
 function abbreviateItem(number) {
     if (number < 1000) return Math.round(number.toString());
     const units = ["K", "M", "B", "T"]; 
@@ -179,8 +179,9 @@ async function displayItems(itemID, auctionData, itemData)
         image:itemImage,
         normal_bid:abbreviateItem(auctionData.starting_bid),
         start:EpochToDate(auctionData.start),
-        end:EpochToDate(auctionData.end)
+        end:EpochToDate(auctionData.end),
     }
+    console.log(auctionData)
     console.log(auctionData.start, auctionData.end)
     auctionElements.push(auction);
 }
@@ -217,6 +218,7 @@ const item_amount = 1000
 const item_per_page =  25;
 let page_number = 1; 
 const total_pages =  Math.ceil(item_amount/item_per_page);
+const page_input =  document.querySelector(".page_input")
 function navigateToPage(page)
 {
     if(page<=0|| page>total_pages)
@@ -224,6 +226,7 @@ function navigateToPage(page)
         page_number = page<=0?1:total_pages;
         return;
     }
+    page_input.value = page;
     auctions_container.innerHTML="";
     console.log(auctionElements)
     for(let i = (page*item_per_page)-item_per_page;i<page*item_per_page;i++)
@@ -232,13 +235,13 @@ function navigateToPage(page)
     `       <div class="auction_item" data-uuid="${auctionElements[i].uuid}">
                 <h2 class="item_header">${auctionElements[i].item_name}</h2>
                 <img src="${auctionElements[i].image}" class="item_image"alt="${auctionElements[i].item_name}">
-                <h2>Auctioneer : }</h2>
                 <h2>Starting Bid : ${auctionElements[i].normal_bid}</h2>
                 <h2>Start : ${auctionElements[i].start}</h2>
                 <h2>End : ${auctionElements[i].end}</h2>
                 <h2></h2>
             </div>`
         );
+        console.log(auctionElements[i])
     }
 }
 
@@ -250,8 +253,30 @@ stupid_form.addEventListener("submit", function(event)
     if(clickedButton == "previous"){page_number-=1;}else if(clickedButton == "next"){page_number+=1};
     navigateToPage(page_number)
 })
-
-
+page_input.addEventListener('keydown', (event)=>
+{
+    if(event.key === `Enter`)
+    {
+        event.preventDefault();
+        const currentPage =  page_input.value  
+        if(currentPage>total_pages)
+        {
+            page_input.value =  total_pages; 
+            page_number =  total_pages;
+            navigateToPage(total_pages)
+        }
+        else if(currentPage<=0)
+        {
+            page_input.value = 1;
+            page_number =  1;
+            navigateToPage(1)    
+        }
+        else
+        {
+            navigateToPage(currentPage)
+        }
+    }
+})
 
 
 
@@ -271,7 +296,6 @@ function isEmptyOrWhitespace(str) {
 function assign_properties(str){
     const parts = str.split(/(?=§[0-9a-f])/);
     const propertyMap = {}
-    //Fix duplicate properties
     const find_formatsymbol =  /§/g;
     for(let i;i<parts.length;i++)
     {
@@ -298,7 +322,6 @@ function assign_properties(str){
     console.log(propertyMap)
     apply_properties(propertyMap);
 }
-//If duplicate characters like , appear within the stirng
 function apply_properties(list)
 {
     const element_list = [];
@@ -329,9 +352,9 @@ async function loadAuctionItemData(itemInfo, auction_uuid)
     const name =  decodedData.value.i.value.value[0].tag.value.display.value.Name.value;
     item_info_dispay.textContent="";
     console.log(decodedData)
-    const itemPhoto =  document.querySelector(`.auction_item[data-uuid="${auction_uuid}]`)
-    const photo =  itemPhoto.querySelector("img");
-    console.log(photo)
+    console.log(auction_uuid)
+    const itemPhoto =  document.querySelector(`.auction_item[data-uuid="${auction_uuid}"]`).querySelector("img").src
+    console.log(itemPhoto)
     assign_properties(name)
     lore.forEach(line=>
     {
@@ -350,5 +373,3 @@ async function loadAuctionItemData(itemInfo, auction_uuid)
 }
 
 
-
-//Item info thingie

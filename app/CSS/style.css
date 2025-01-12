@@ -12,20 +12,24 @@ body {
 }
 
 .item_image {
-    width: 7.5rem;
-    height: 7.5rem;
+    width:5rem;
+    height:5rem;
 }
 
 .auction_item {
     background-color: grey;
-    width: 25rem;
-    height: 25rem;
-    border-radius: 1px;
-    border-width: 10px;
+    width: 15rem;
+    height: 15rem;
+    border-radius: 10px;
+    border: 0.3rem solid #000    
+}
+.auction_item:hover{
+    transform:translateY(-5px);
+    box-shadow: 0 5px 15px rgb(0, 0, 0)
 }
 
 .item_header {
-    font-size: 1.5rem;
+    font-size: 1rem;
     padding: 1rem;
     color: darkmagenta;
 }
@@ -33,7 +37,7 @@ body {
 .auctions_container {
     width: 50%;
     display: grid;
-    grid-template-columns: repeat(5, 25rem);
+    grid-template-columns: repeat(5, 15rem);
     gap: 1rem;
     margin: 1rem;
     padding: 1rem;
@@ -54,6 +58,13 @@ body {
     display: flex;
     margin: 10px;
     text-align: center;
+}
+.test_container {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    height:100%;
+    width:50%;
 }
 
 @font-face {
@@ -95,10 +106,44 @@ body {
     font-size: 1.5rem;
 }
 
-.test_container {
-    width: 50%;
-    align-items: center;
-    padding: 10px;
+.move
+{
+    background:green;
+    color:white;
+    border:none;
+    border-radius: 1rem;
+    cursor:pointer;
+    padding:10px 20px;
+    font-size: 2rem;
+    transition: background-color 0.3s ease;
 }
+.move:hover
+{
+    background-color: rgb(9, 183, 9);
+}
+.move:active
+{
+    background-color: rgb(130, 240, 130);
+}
+.page_input
+{
+    border:none;
+    padding: 10px;
+    color:white;
+    background:teal;
+    text-align: center;
+    font-size: 2rem;
+    border-radius: 1rem;
+    width:5rem;
+    outline: none;
+}
+.page_scroller
+{
+    width:100%;
+    text-align: center;
+    margin:2rem auto;
+    display:flex;
+    justify-content: center;
+    align-items: center;
 
-.move {}
+ }
