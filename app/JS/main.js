@@ -1,5 +1,5 @@
 import '../CSS/style.css';
-import * as nbt from 'prismarine-nbt';
+import * as nbt from 'prismarine-nbt'
 import {Buffer} from 'buffer';
 import pako from 'pako';
 import { decode } from 'punycode';
@@ -260,7 +260,7 @@ page_input.addEventListener('keydown', (event)=>
         if(!Number.isInteger(currentPage))
         {
             currentPage = page_number;
-            page_input.blur();
+            page_input.blur()
             return;
         }
         if(currentPage>total_pages)
