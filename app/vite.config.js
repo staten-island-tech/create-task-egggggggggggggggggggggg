@@ -16,6 +16,7 @@ export default defineConfig({
     include: ['buffer', 'process', 'stream-browserify', 'util'],
   },
   build: {
+    outDir: 'app/dist',
     rollupOptions: {
       external: ['buffer'],
     },
