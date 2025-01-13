@@ -3,10 +3,8 @@ import * as nbt from 'prismarine-nbt';
 import {Buffer} from 'buffer';
 import pako from 'pako';
 import { decode } from 'punycode';
-const apiKey = import.meta.env.VITE_HYPIXEL_API_KEY;
 const auctions_container =  document.querySelector(".auctions_container")
 const item_info_dispay = document.querySelector(".item_info_display")
-const pageNavigation =  document.querySelector(".page_scroller");
 const minecraftFormattingCodes = {
     "§0": "color:#000000;", 
     "§1": "color:#0000AA;", 
@@ -258,7 +256,13 @@ page_input.addEventListener('keydown', (event)=>
     if(event.key === `Enter`)
     {
         event.preventDefault();
-        const currentPage =  page_input.value  
+        const currentPage = parseInt(page_input.value, 10);
+        if(!Number.isInteger(currentPage))
+        {
+            currentPage = page_number;
+            page_input.blur();
+            return;
+        }
         if(currentPage>total_pages)
         {
             page_input.value =  total_pages; 
