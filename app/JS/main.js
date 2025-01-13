@@ -1,5 +1,6 @@
 import '../CSS/style.css';
 import * as nbt from 'prismarine-nbt'
+console.log("prismarine sucessfully imported")
 import {Buffer} from 'buffer';
 import pako from 'pako';
 import { decode } from 'punycode';
